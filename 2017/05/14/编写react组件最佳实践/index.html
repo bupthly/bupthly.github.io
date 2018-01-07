@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT" />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="本文译自：https://engineering.musefind.com/our-best-practices-for-writing-react-components-dec3eb5c3fc8  我最开始学习react的时候，看到过各种各样编写组件的方式，不同教程中提出的方法往往有很大不同。当时虽说react这个框架已经十分成熟，但是似乎还没有一种公认正确的使用方法。过去几年中，我们团队编写了">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【译】编写react组件最佳实践">
+<meta property="og:url" content="http://hualuyao.com/2017/05/14/编写react组件最佳实践/index.html">
+<meta property="og:site_name" content="luyao&#39;s blog">
+<meta property="og:description" content="本文译自：https://engineering.musefind.com/our-best-practices-for-writing-react-components-dec3eb5c3fc8  我最开始学习react的时候，看到过各种各样编写组件的方式，不同教程中提出的方法往往有很大不同。当时虽说react这个框架已经十分成熟，但是似乎还没有一种公认正确的使用方法。过去几年中，我们团队编写了">
+<meta property="og:locale" content="zh">
+<meta property="og:image" content="http://hualuyao.com/images/20170514/1.png">
+<meta property="og:image" content="http://hualuyao.com/images/20170514/2.png">
+<meta property="og:image" content="http://hualuyao.com/images/20170514/3.png">
+<meta property="og:updated_time" content="2018-01-07T06:41:07.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="【译】编写react组件最佳实践">
+<meta name="twitter:description" content="本文译自：https://engineering.musefind.com/our-best-practices-for-writing-react-components-dec3eb5c3fc8  我最开始学习react的时候，看到过各种各样编写组件的方式，不同教程中提出的方法往往有很大不同。当时虽说react这个框架已经十分成熟，但是似乎还没有一种公认正确的使用方法。过去几年中，我们团队编写了">
+<meta name="twitter:image" content="http://hualuyao.com/images/20170514/1.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://hualuyao.com/2017/05/14/编写react组件最佳实践/"/>
+
+
+
+
+
+  <title>【译】编写react组件最佳实践 | luyao's blog</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">luyao's blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Startseite
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            Über
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archiv
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://hualuyao.com/2017/05/14/编写react组件最佳实践/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="luyao">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="luyao's blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">【译】编写react组件最佳实践</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Veröffentlicht am</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2017-05-14T00:00:00+08:00">
+                2017-05-14
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p><strong>本文译自：<a href="https://engineering.musefind.com/our-best-practices-for-writing-react-components-dec3eb5c3fc8" target="_blank" rel="noopener">https://engineering.musefind.com/our-best-practices-for-writing-react-components-dec3eb5c3fc8</a></strong></p>
+<p><img src="/images/20170514/1.png" alt="图片描述"></p>
+<p>我最开始学习react的时候，看到过各种各样编写组件的方式，不同教程中提出的方法往往有很大不同。当时虽说react这个框架已经十分成熟，但是似乎还没有一种公认正确的使用方法。过去几年中，我们团队编写了很多react组件，我们对实现方法进行了不断的优化，直到满意。</p>
+<p>本文介绍了我们在实践中的最佳实践方式，希望能对无论是初学者还是有经验的开发者来说都有一定的帮助。</p>
+<a id="more"></a>
+<p>在我们开始之前，有几点需要说明：</p>
+<ul>
+<li>我们是用es6和es7语法</li>
+<li>如果你不了解展示组件和容器组件的区别，可以先阅读<a href="https://medium.com/@dan_abramov/smart-and-dumb-components-7ca2f9a7c7d0" target="_blank" rel="noopener">这篇文章</a></li>
+<li>如果你有任何建议、问题或者反馈，可以给我们留言</li>
+</ul>
+<h2 id="Class-Based-Components-基于类的组件"><a href="#Class-Based-Components-基于类的组件" class="headerlink" title="Class Based Components (基于类的组件)"></a>Class Based Components (基于类的组件)</h2><p>Class based components 有自己的state和方法。我们会尽可能谨慎的使用这些组件，但是他们有自己的使用场景。</p>
+<p>接下来我们就一行一行来编写组件。</p>
+<h3 id="导入CSS"><a href="#导入CSS" class="headerlink" title="导入CSS"></a>导入CSS</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">import React, &#123; Component &#125; from &apos;react&apos;</span><br><span class="line">import &#123; observer &#125; from &apos;mobx-react&apos;</span><br><span class="line"></span><br><span class="line">import ExpandableForm from &apos;./ExpandableForm&apos;</span><br><span class="line">import &apos;./styles/ProfileContainer.css&apos;</span><br></pre></td></tr></table></figure>
+<p>我很喜欢CSS in JS，但是它目前还是一种新的思想，成熟的解决方案还未产生。我们在每个组件中都导入了它的css文件。</p>
+<blockquote>
+<p><strong>译者注</strong>：目前CSS in JS可以使用css modules方案来解决，webpack的css-loader已经提供了该功能</p>
+</blockquote>
+<p>我们还用一个空行来区分自己的依赖。</p>
+<blockquote>
+<p><strong>译者注</strong>：即第4、5行和第1、2行中间会单独加行空行。</p>
+</blockquote>
+<h3 id="初始化state"><a href="#初始化state" class="headerlink" title="初始化state"></a>初始化state</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">import React, &#123; Component &#125; from &apos;react&apos;</span><br><span class="line">import &#123; observer &#125; from &apos;mobx-react&apos;</span><br><span class="line"></span><br><span class="line">import ExpandableForm from &apos;./ExpandableForm&apos;</span><br><span class="line">import &apos;./styles/ProfileContainer.css&apos;</span><br><span class="line"></span><br><span class="line">export default class ProfileContainer extends Component &#123;</span><br><span class="line">  state = &#123; expanded: false &#125;</span><br></pre></td></tr></table></figure>
+<p>你也可以在constructor中初始化state，不过我们更喜欢这种简洁的方式。我们还会确保默认导出组件的class。</p>
+<h3 id="propTypes-和-defaultProps"><a href="#propTypes-和-defaultProps" class="headerlink" title="propTypes 和 defaultProps"></a>propTypes 和 defaultProps</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">import React, &#123; Component &#125; from &apos;react&apos;</span><br><span class="line">import &#123; observer &#125; from &apos;mobx-react&apos;</span><br><span class="line">import &#123; string, object &#125; from &apos;prop-types&apos;</span><br><span class="line"></span><br><span class="line">import ExpandableForm from &apos;./ExpandableForm&apos;</span><br><span class="line">import &apos;./styles/ProfileContainer.css&apos;</span><br><span class="line"></span><br><span class="line">export default class ProfileContainer extends Component &#123;</span><br><span class="line">  state = &#123; expanded: false &#125;</span><br><span class="line"> </span><br><span class="line">  static propTypes = &#123;</span><br><span class="line">    model: object.isRequired,</span><br><span class="line">    title: string</span><br><span class="line">  &#125;</span><br><span class="line"> </span><br><span class="line">  static defaultProps = &#123;</span><br><span class="line">    model: &#123;</span><br><span class="line">      id: 0</span><br><span class="line">    &#125;,</span><br><span class="line">    title: &apos;Your Name&apos;</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+<p>propTypes和defaultProps是静态属性，应该尽可能在代码的顶部声明。这两个属性起着文档的作用，应该能够使阅读代码的开发者一眼就能够看到。如果你正在使用react 15.3.0或者更高的版本，使用prop-types，而不是React.PropTypes。你的所有组件，都应该有propTypes属性。</p>
+<h3 id="方法"><a href="#方法" class="headerlink" title="方法"></a>方法</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line">import React, &#123; Component &#125; from &apos;react&apos;</span><br><span class="line">import &#123; observer &#125; from &apos;mobx-react&apos;</span><br><span class="line">import &#123; string, object &#125; from &apos;prop-types&apos;</span><br><span class="line"></span><br><span class="line">import ExpandableForm from &apos;./ExpandableForm&apos;</span><br><span class="line">import &apos;./styles/ProfileContainer.css&apos;</span><br><span class="line"></span><br><span class="line">export default class ProfileContainer extends Component &#123;</span><br><span class="line">  state = &#123; expanded: false &#125;</span><br><span class="line"> </span><br><span class="line">  static propTypes = &#123;</span><br><span class="line">    model: object.isRequired,</span><br><span class="line">    title: string</span><br><span class="line">  &#125;</span><br><span class="line"> </span><br><span class="line">  static defaultProps = &#123;</span><br><span class="line">    model: &#123;</span><br><span class="line">      id: 0</span><br><span class="line">    &#125;,</span><br><span class="line">    title: &apos;Your Name&apos;</span><br><span class="line">  &#125;</span><br><span class="line">  handleSubmit = (e) =&gt; &#123;</span><br><span class="line">    e.preventDefault()</span><br><span class="line">    this.props.model.save()</span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  handleNameChange = (e) =&gt; &#123;</span><br><span class="line">    this.props.model.changeName(e.target.value)</span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  handleExpand = (e) =&gt; &#123;</span><br><span class="line">    e.preventDefault()</span><br><span class="line">    this.setState(&#123; expanded: !this.state.expanded &#125;)</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+<p>使用class components,当你向子组件传递方法的时候，需要确保这些方法被调用时有正确的this值。通常会在向子组件传递时使用this.handleSubmit.bind(this)来实现。当然，使用es6的箭头函数写法更加简洁。</p>
+<blockquote>
+<p><strong>译者注</strong>：也可以在constructor中完成方法的上下文的绑定：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&gt; constructor() &#123;</span><br><span class="line">&gt;     this.handleSubmit = this.handleSubmit.bind(this);</span><br><span class="line">&gt; &#125;</span><br><span class="line">&gt;</span><br></pre></td></tr></table></figure></p>
+</blockquote>
+<h3 id="给setState传入一个函数作为参数-passing-setState-a-Function"><a href="#给setState传入一个函数作为参数-passing-setState-a-Function" class="headerlink" title="给setState传入一个函数作为参数(passing setState a Function)"></a>给setState传入一个函数作为参数(passing setState a Function)</h3><p>在上文的例子中，我们是这么做的：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">this.setState(&#123; expanded: !this.state.expanded &#125;)</span><br></pre></td></tr></table></figure></p>
+<p>setState实际是异步执行的，react因为性能原因会将state的变化整合，再一起处理，因此当setState被调用的时候，state并不一定会立即变化。</p>
+<p>这意味着在调用setState的时候你不能依赖当前的state值——因为你不能确保setState真正被调用的时候state究竟是什么。</p>
+<p>解决方案就是给setState传入一个方法，该方法接收上一次的state作为参数。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">this.setState(prevState =&gt; (&#123; expanded: !prevState.expanded &#125;)</span><br></pre></td></tr></table></figure>
+<h3 id="解构props"><a href="#解构props" class="headerlink" title="解构props"></a>解构props</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br></pre></td><td class="code"><pre><span class="line">import React, &#123; Component &#125; from &apos;react&apos;</span><br><span class="line">import &#123; observer &#125; from &apos;mobx-react&apos;</span><br><span class="line">import &#123; string, object &#125; from &apos;prop-types&apos;</span><br><span class="line">import ExpandableForm from &apos;./ExpandableForm&apos;</span><br><span class="line">import &apos;./styles/ProfileContainer.css&apos;</span><br><span class="line">export default class ProfileContainer extends Component &#123;</span><br><span class="line">  state = &#123; expanded: false &#125;</span><br><span class="line"> </span><br><span class="line">  static propTypes = &#123;</span><br><span class="line">    model: object.isRequired,</span><br><span class="line">    title: string</span><br><span class="line">  &#125;</span><br><span class="line"> </span><br><span class="line">  static defaultProps = &#123;</span><br><span class="line">    model: &#123;</span><br><span class="line">      id: 0</span><br><span class="line">    &#125;,</span><br><span class="line">    title: &apos;Your Name&apos;</span><br><span class="line">  &#125;</span><br><span class="line">  handleSubmit = (e) =&gt; &#123;</span><br><span class="line">    e.preventDefault()</span><br><span class="line">    this.props.model.save()</span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  handleNameChange = (e) =&gt; &#123;</span><br><span class="line">    this.props.model.changeName(e.target.value)</span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  handleExpand = (e) =&gt; &#123;</span><br><span class="line">    e.preventDefault()</span><br><span class="line">    this.setState(prevState =&gt; (&#123; expanded: !prevState.expanded &#125;))</span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  render() &#123;</span><br><span class="line">    const &#123;</span><br><span class="line">      model,</span><br><span class="line">      title</span><br><span class="line">    &#125; = this.props</span><br><span class="line">    return ( </span><br><span class="line">      &lt;ExpandableForm </span><br><span class="line">        onSubmit=&#123;this.handleSubmit&#125; </span><br><span class="line">        expanded=&#123;this.state.expanded&#125; </span><br><span class="line">        onExpand=&#123;this.handleExpand&#125;&gt;</span><br><span class="line">        &lt;div&gt;</span><br><span class="line">          &lt;h1&gt;&#123;title&#125;&lt;/h1&gt;</span><br><span class="line">          &lt;input</span><br><span class="line">            type=&quot;text&quot;</span><br><span class="line">            value=&#123;model.name&#125;</span><br><span class="line">            onChange=&#123;this.handleNameChange&#125;</span><br><span class="line">            placeholder=&quot;Your Name&quot;/&gt;</span><br><span class="line">        &lt;/div&gt;</span><br><span class="line">      &lt;/ExpandableForm&gt;</span><br><span class="line">    )</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>对于有很多props的组件来说，应当像上述写法一样，将每个属性解构出来，且每个属性单独一行。</p>
+<h3 id="装饰器-Decorators"><a href="#装饰器-Decorators" class="headerlink" title="装饰器(Decorators)"></a>装饰器(Decorators)</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">@observer</span><br><span class="line">export default class ProfileContainer extends Component &#123;</span><br></pre></td></tr></table></figure>
+<p>如果你正在使用类似于mobx的状态管理器，你可以按照上述方式描述你的组件。这种写法与将组件作为参数传递给一个函数效果是一样的。装饰器(decorators)是一种非常灵活和易读的定义组件功能的方式。我们使用mobx和mobx-models来结合装饰器进行使用。</p>
+<p>如果你不想使用装饰器，可以按照如下方式来做：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">class ProfileContainer extends Component &#123;</span><br><span class="line">  // Component code</span><br><span class="line">&#125;</span><br><span class="line">export default observer(ProfileContainer)</span><br></pre></td></tr></table></figure></p>
+<h3 id="闭包"><a href="#闭包" class="headerlink" title="闭包"></a>闭包</h3><p>避免向子组件传入闭包，如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">&lt;input</span><br><span class="line">    type=&quot;text&quot;</span><br><span class="line">    value=&#123;model.name&#125;</span><br><span class="line">    // onChange=&#123;(e) =&gt; &#123; model.name = e.target.value &#125;&#125;</span><br><span class="line">    // ^ 不要这样写，按如下写法：</span><br><span class="line">    onChange=&#123;this.handleChange&#125;</span><br><span class="line">    placeholder=&quot;Your Name&quot;/&gt;</span><br></pre></td></tr></table></figure></p>
+<p>原因在于：每次父组件重新渲染时，都会创建一个新的函数，并传给input。</p>
+<p>如果这个input是个react组件的话，这会导致无论该组件的其他属性是否变化，该组件都会重新render。</p>
+<p>而且，采用将父组件的方法传入的方式也会使得代码更易读，方便调试，同时也容易修改。</p>
+<p>完整代码如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br></pre></td><td class="code"><pre><span class="line">import React, &#123; Component &#125; from &apos;react&apos;</span><br><span class="line">import &#123; observer &#125; from &apos;mobx-react&apos;</span><br><span class="line">import &#123; string, object &#125; from &apos;prop-types&apos;</span><br><span class="line">// Separate local imports from dependencies</span><br><span class="line">import ExpandableForm from &apos;./ExpandableForm&apos;</span><br><span class="line">import &apos;./styles/ProfileContainer.css&apos;</span><br><span class="line"></span><br><span class="line">// Use decorators if needed</span><br><span class="line">@observer</span><br><span class="line">export default class ProfileContainer extends Component &#123;</span><br><span class="line">  state = &#123; expanded: false &#125;</span><br><span class="line">  // Initialize state here (ES7) or in a constructor method (ES6)</span><br><span class="line"> </span><br><span class="line">  // Declare propTypes as static properties as early as possible</span><br><span class="line">  static propTypes = &#123;</span><br><span class="line">    model: object.isRequired,</span><br><span class="line">    title: string</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  // Default props below propTypes</span><br><span class="line">  static defaultProps = &#123;</span><br><span class="line">    model: &#123;</span><br><span class="line">      id: 0</span><br><span class="line">    &#125;,</span><br><span class="line">    title: &apos;Your Name&apos;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  // Use fat arrow functions for methods to preserve context (this will thus be the component instance)</span><br><span class="line">  handleSubmit = (e) =&gt; &#123;</span><br><span class="line">    e.preventDefault()</span><br><span class="line">    this.props.model.save()</span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  handleNameChange = (e) =&gt; &#123;</span><br><span class="line">    this.props.model.name = e.target.value</span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  handleExpand = (e) =&gt; &#123;</span><br><span class="line">    e.preventDefault()</span><br><span class="line">    this.setState(prevState =&gt; (&#123; expanded: !prevState.expanded &#125;))</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  render() &#123;</span><br><span class="line">    // Destructure props for readability</span><br><span class="line">    const &#123;</span><br><span class="line">      model,</span><br><span class="line">      title</span><br><span class="line">    &#125; = this.props</span><br><span class="line">    return ( </span><br><span class="line">      &lt;ExpandableForm </span><br><span class="line">        onSubmit=&#123;this.handleSubmit&#125; </span><br><span class="line">        expanded=&#123;this.state.expanded&#125; </span><br><span class="line">        onExpand=&#123;this.handleExpand&#125;&gt;</span><br><span class="line">        // Newline props if there are more than two</span><br><span class="line">        &lt;div&gt;</span><br><span class="line">          &lt;h1&gt;&#123;title&#125;&lt;/h1&gt;</span><br><span class="line">          &lt;input</span><br><span class="line">            type=&quot;text&quot;</span><br><span class="line">            value=&#123;model.name&#125;</span><br><span class="line">            // onChange=&#123;(e) =&gt; &#123; model.name = e.target.value &#125;&#125;</span><br><span class="line">            // Avoid creating new closures in the render method- use methods like below</span><br><span class="line">            onChange=&#123;this.handleNameChange&#125;</span><br><span class="line">            placeholder=&quot;Your Name&quot;/&gt;</span><br><span class="line">        &lt;/div&gt;</span><br><span class="line">        &lt;/ExpandableForm&gt;</span><br><span class="line">    )</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="函数组件-Functional-Components"><a href="#函数组件-Functional-Components" class="headerlink" title="函数组件(Functional Components)"></a>函数组件(Functional Components)</h2><p>这些组件没有state和方法。它们是纯净的，非常容易定位问题，可以尽可能多的使用这些组件。</p>
+<h3 id="propTypes"><a href="#propTypes" class="headerlink" title="propTypes"></a>propTypes</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">import React from &apos;react&apos;</span><br><span class="line">import &#123; observer &#125; from &apos;mobx-react&apos;</span><br><span class="line">import &#123; func, bool &#125; from &apos;prop-types&apos;</span><br><span class="line"></span><br><span class="line">import &apos;./styles/Form.css&apos;</span><br><span class="line">ExpandableForm.propTypes = &#123;</span><br><span class="line">  onSubmit: func.isRequired,</span><br><span class="line">  expanded: bool</span><br><span class="line">&#125;</span><br><span class="line">// Component declaration</span><br></pre></td></tr></table></figure>
+<p>这里我们在组件声明之前就定义了propTypes，非常直观。我们可以这么做是因为js的函数名提升机制。</p>
+<h3 id="Destructuring-Props-and-defaultProps-解构props和defaultProps"><a href="#Destructuring-Props-and-defaultProps-解构props和defaultProps" class="headerlink" title="Destructuring Props and defaultProps(解构props和defaultProps)"></a>Destructuring Props and defaultProps(解构props和defaultProps)</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">import React from &apos;react&apos;</span><br><span class="line">import &#123; observer &#125; from &apos;mobx-react&apos;</span><br><span class="line">import &#123; func, bool &#125; from &apos;prop-types&apos;</span><br><span class="line"></span><br><span class="line">import &apos;./styles/Form.css&apos;</span><br><span class="line">ExpandableForm.propTypes = &#123;</span><br><span class="line">  onSubmit: func.isRequired,</span><br><span class="line">  expanded: bool,</span><br><span class="line">  onExpand: func.isRequired</span><br><span class="line">&#125;</span><br><span class="line">function ExpandableForm(props) &#123;</span><br><span class="line">  const formStyle = props.expanded ? &#123;height: &apos;auto&apos;&#125; : &#123;height: 0&#125;</span><br><span class="line">  return (</span><br><span class="line">    &lt;form style=&#123;formStyle&#125; onSubmit=&#123;props.onSubmit&#125;&gt;</span><br><span class="line">      &#123;props.children&#125;</span><br><span class="line">      &lt;button onClick=&#123;props.onExpand&#125;&gt;Expand&lt;/button&gt;</span><br><span class="line">    &lt;/form&gt;</span><br><span class="line">  )</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>我们的组件是一个函数，props作为函数的入参被传递进来。我们可以按照如下方式对组件进行扩展：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">import React from &apos;react&apos;</span><br><span class="line">import &#123; observer &#125; from &apos;mobx-react&apos;</span><br><span class="line">import &#123; func, bool &#125; from &apos;prop-types&apos;</span><br><span class="line">import &apos;./styles/Form.css&apos;</span><br><span class="line">ExpandableForm.propTypes = &#123;</span><br><span class="line">  onSubmit: func.isRequired,</span><br><span class="line">  expanded: bool,</span><br><span class="line">  onExpand: func.isRequired</span><br><span class="line">&#125;</span><br><span class="line">function ExpandableForm(&#123; onExpand, expanded = false, children, onSubmit &#125;) &#123;</span><br><span class="line">  const formStyle = expanded ? &#123;height: &apos;auto&apos;&#125; : &#123;height: 0&#125;</span><br><span class="line">  return (</span><br><span class="line">    &lt;form style=&#123;formStyle&#125; onSubmit=&#123;onSubmit&#125;&gt;</span><br><span class="line">      &#123;children&#125;</span><br><span class="line">      &lt;button onClick=&#123;onExpand&#125;&gt;Expand&lt;/button&gt;</span><br><span class="line">    &lt;/form&gt;</span><br><span class="line">  )</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>我们可以给参数设置默认值，作为defaultProps。如果expanded是undefined,就将其设置为false。（这种设置默认值的方式，对于对象类的入参非常有用，可以避免`can’t read property XXXX of undefined的错误）</p>
+<p><strong>不要使用es6箭头函数的写法：</strong><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">const ExpandableForm = (&#123; onExpand, expanded, children &#125;) =&gt; &#123;</span><br></pre></td></tr></table></figure></p>
+<p>这种写法中，函数实际是匿名函数。如果正确地使用了babel则不成问题，但是如果没有，运行时就会导致一些错误，非常不方便调试。</p>
+<p>另外，在Jest，一个react的测试库，中使用匿名函数也会导致一些问题。由于使用匿名函数可能会出现一些潜在的问题，我们推荐使用function，而不是const。</p>
+<h3 id="Wrapping"><a href="#Wrapping" class="headerlink" title="Wrapping"></a>Wrapping</h3><p>在函数组件中不能使用装饰器，我们可以将其作为入参传给observer函数</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">import React from &apos;react&apos;</span><br><span class="line">import &#123; observer &#125; from &apos;mobx-react&apos;</span><br><span class="line">import &#123; func, bool &#125; from &apos;prop-types&apos;</span><br><span class="line"></span><br><span class="line">import &apos;./styles/Form.css&apos;</span><br><span class="line">ExpandableForm.propTypes = &#123;</span><br><span class="line">  onSubmit: func.isRequired,</span><br><span class="line">  expanded: bool,</span><br><span class="line">  onExpand: func.isRequired</span><br><span class="line">&#125;</span><br><span class="line">function ExpandableForm(&#123; onExpand, expanded = false, children, onSubmit &#125;) &#123;</span><br><span class="line">  const formStyle = expanded ? &#123;height: &apos;auto&apos;&#125; : &#123;height: 0&#125;</span><br><span class="line">  return (</span><br><span class="line">    &lt;form style=&#123;formStyle&#125; onSubmit=&#123;onSubmit&#125;&gt;</span><br><span class="line">      &#123;children&#125;</span><br><span class="line">      &lt;button onClick=&#123;onExpand&#125;&gt;Expand&lt;/button&gt;</span><br><span class="line">    &lt;/form&gt;</span><br><span class="line">  )</span><br><span class="line">&#125;</span><br><span class="line">export default observer(ExpandableForm)</span><br></pre></td></tr></table></figure>
+<p>完整组件如下所示：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">import React from &apos;react&apos;</span><br><span class="line">import &#123; observer &#125; from &apos;mobx-react&apos;</span><br><span class="line">import &#123; func, bool &#125; from &apos;prop-types&apos;</span><br><span class="line">// Separate local imports from dependencies</span><br><span class="line">import &apos;./styles/Form.css&apos;</span><br><span class="line"></span><br><span class="line">// Declare propTypes here, before the component (taking advantage of JS function hoisting)</span><br><span class="line">// You want these to be as visible as possible</span><br><span class="line">ExpandableForm.propTypes = &#123;</span><br><span class="line">  onSubmit: func.isRequired,</span><br><span class="line">  expanded: bool,</span><br><span class="line">  onExpand: func.isRequired</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">// Destructure props like so, and use default arguments as a way of setting defaultProps</span><br><span class="line">function ExpandableForm(&#123; onExpand, expanded = false, children, onSubmit &#125;) &#123;</span><br><span class="line">  const formStyle = expanded ? &#123; height: &apos;auto&apos; &#125; : &#123; height: 0 &#125;</span><br><span class="line">  return (</span><br><span class="line">    &lt;form style=&#123;formStyle&#125; onSubmit=&#123;onSubmit&#125;&gt;</span><br><span class="line">      &#123;children&#125;</span><br><span class="line">      &lt;button onClick=&#123;onExpand&#125;&gt;Expand&lt;/button&gt;</span><br><span class="line">    &lt;/form&gt;</span><br><span class="line">  )</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">// Wrap the component instead of decorating it</span><br><span class="line">export default observer(ExpandableForm)</span><br></pre></td></tr></table></figure></p>
+<h2 id="在JSX中使用条件判断（Conditionals-in-JSX）"><a href="#在JSX中使用条件判断（Conditionals-in-JSX）" class="headerlink" title="在JSX中使用条件判断（Conditionals in JSX）"></a>在JSX中使用条件判断（Conditionals in JSX）</h2><p>有时候我们需要在render中写很多的判断逻辑，以下这种写法是我们应该要避免的：<br><img src="/images/20170514/2.png" alt="图片描述"></p>
+<p>目前有一些库来解决这个问题，但是我们没有引入其他依赖，而是采用了如下方式来解决：<br><img src="/images/20170514/3.png" alt="图片描述"><br>这里我们采用立即执行函数的方式来解决问题，将if语句放到立即执行函数中，返回任何你想返回的。需要注意的是，立即执行函数会带来一定的性能问题，但是对于代码的可读性来说，这个影响可以忽略。</p>
+<p>同样的，当你只希望在某种情况下渲染时，不要这么做：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  isTrue</span><br><span class="line">   ? &lt;p&gt;True!&lt;/p&gt;</span><br><span class="line">   : &lt;none/&gt;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>而应当这么做：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  isTrue &amp;&amp; </span><br><span class="line">    &lt;p&gt;True!&lt;/p&gt;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>（全文完）</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/11/09/secret-webpack/" rel="next" title="【译】Webpack之谜">
+                <i class="fa fa-chevron-left"></i> 【译】Webpack之谜
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Inhaltsverzeichnis
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Übersicht
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">luyao</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">2</span>
+                  <span class="site-state-item-name">Artikel</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Class-Based-Components-基于类的组件"><span class="nav-number">1.</span> <span class="nav-text">Class Based Components (基于类的组件)</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#导入CSS"><span class="nav-number">1.1.</span> <span class="nav-text">导入CSS</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#初始化state"><span class="nav-number">1.2.</span> <span class="nav-text">初始化state</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#propTypes-和-defaultProps"><span class="nav-number">1.3.</span> <span class="nav-text">propTypes 和 defaultProps</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#方法"><span class="nav-number">1.4.</span> <span class="nav-text">方法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#给setState传入一个函数作为参数-passing-setState-a-Function"><span class="nav-number">1.5.</span> <span class="nav-text">给setState传入一个函数作为参数(passing setState a Function)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#解构props"><span class="nav-number">1.6.</span> <span class="nav-text">解构props</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#装饰器-Decorators"><span class="nav-number">1.7.</span> <span class="nav-text">装饰器(Decorators)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#闭包"><span class="nav-number">1.8.</span> <span class="nav-text">闭包</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#函数组件-Functional-Components"><span class="nav-number">2.</span> <span class="nav-text">函数组件(Functional Components)</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#propTypes"><span class="nav-number">2.1.</span> <span class="nav-text">propTypes</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Destructuring-Props-and-defaultProps-解构props和defaultProps"><span class="nav-number">2.2.</span> <span class="nav-text">Destructuring Props and defaultProps(解构props和defaultProps)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Wrapping"><span class="nav-number">2.3.</span> <span class="nav-text">Wrapping</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#在JSX中使用条件判断（Conditionals-in-JSX）"><span class="nav-number">3.</span> <span class="nav-text">在JSX中使用条件判断（Conditionals in JSX）</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">luyao</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Erstellt mit  <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
