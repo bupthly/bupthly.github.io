@@ -14,8 +14,9 @@
     <meta name="description" content=" 本文译自【Webpack-The Confusing Parts】原文
 前言webpack是当前最受欢迎的模块管理器（module bundler），对于使用React开发的项目来说堪称神器。当然，对于使用其他框架，比如Angular或者Backbone等的开发者来说，webpack也是种很好的工具。
 第一次配置webpack.config.js时，有很多地方使我很困惑。在使用了webpack一段时间后，我认识到正是这些地方让webpack如此强大和迷人。
+
 webpack核心理念
-一切都是模块" />
+一切都是模" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
     <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no" />
     <meta name="baidu-site-verification" content="F0CXvmUgA9" />
@@ -116,7 +117,7 @@ webpack核心理念
         </h1>
         
         <div class="article-meta clearfix">
-            <a class="article-date" href="/2016/11/09/hello-world/">
+            <a class="article-date" href="/2016/11/09/secret-webpack/">
     
     <i class="icon-calendar"></i>
     
@@ -133,6 +134,7 @@ webpack核心理念
         <p> <em>本文译自【Webpack-The Confusing Parts】<a href="https://medium.com/@rajaraodv/webpack-the-confusing-parts-58712f8fcad9#.m63u83at2" target="_blank" rel="noopener">原文</a></em></p>
 <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p><code>webpack</code>是当前最受欢迎的模块管理器（<code>module bundler</code>），对于使用<code>React</code>开发的项目来说堪称神器。当然，对于使用其他框架，比如<code>Angular</code>或者<code>Backbone</code>等的开发者来说，<code>webpack</code>也是种很好的工具。</p>
 <p>第一次配置<code>webpack.config.js</code>时，有很多地方使我很困惑。在使用了<code>webpack</code>一段时间后，我认识到正是这些地方让<code>webpack</code>如此强大和迷人。</p>
+<a id="more"></a>
 <h2 id="webpack核心理念"><a href="#webpack核心理念" class="headerlink" title="webpack核心理念"></a><code>webpack</code>核心理念</h2><ul>
 <li>一切都是模块。—— 在<code>webpack</code>中，不仅<code>js</code>文件可以作为一个模块，其他文件（<code>css</code>，<code>images</code>，<code>html</code>）都可以作为模块。这就是说，你可以在其他文件中加载这些模块，<code>require(&#39;myJSfile.js&#39;)</code>，或者<code>require(&#39;myCSSfile.css&#39;)</code>。这意味着我们将任意文件拆分成便于管理的小文件，然后通过在其他文件中加载这些小文件来达到重复利用的目的。</li>
 <li>按需加载（<code>Load only &quot;what&quot; you need and &quot;when&quot; you need</code>）—— 一般情况下打包工具会将我们所有的模块打包生成一个最终的文件<code>bundle.js</code>。但是在实际应用中，<code>bundle.js</code>通常会很大（10M~15M），需要很长时间才能加载完成。<code>webpack</code>提供了多种<code>code splitting</code>的方法，会生成过个打包后的文件，且支持按需加载。这样我们只有在需要用到某个模块的时候才会异步加载该模块。</li>
@@ -211,9 +213,9 @@ webpack核心理念
     <script>
     window.disqus_config = function () {
         this.language = 'zh';
-        this.page.url = 'http://hualuyao.com/2016/11/09/hello-world/';
+        this.page.url = 'http://hualuyao.com/2016/11/09/secret-webpack/';
         this.page.title = '【译】Webpack之谜';
-        this.page.identifier = '2016/11/09/hello-world/';
+        this.page.identifier = '2016/11/09/secret-webpack/';
     };
     (function() { // DON'T EDIT BELOW THIS LINE
         var d = document, s = d.createElement('script');
@@ -227,7 +229,7 @@ webpack核心理念
 
 </div>
         <footer class="footer">
-    Propulsé by <a href="http://hexo.io/" target="_blank">Hexo</a>, Theme by <a href="https://github.com/sanonz/hexo-theme-concise" target="_blank">Concise</a>
+    Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>, Theme by <a href="https://github.com/sanonz/hexo-theme-concise" target="_blank">Concise</a>
 </footer>
 
 <script type="text/javascript" src="//s13.cnzz.com/z_stat.php?id=1234567890&amp;web_id=1234567890"></script>
