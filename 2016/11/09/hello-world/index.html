@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+
+    
+
+    
+
+    <title>【译】Webpack之谜 | luyao&#39;s blog</title>
+    <meta name="author" content="luyao" />
+    <meta name="version" content="1.0.0" />
+    <meta name="keywords" content="" />
+    <meta name="description" content=" 本文译自【Webpack-The Confusing Parts】原文
+前言webpack是当前最受欢迎的模块管理器（module bundler），对于使用React开发的项目来说堪称神器。当然，对于使用其他框架，比如Angular或者Backbone等的开发者来说，webpack也是种很好的工具。
+第一次配置webpack.config.js时，有很多地方使我很困惑。在使用了webpack一段时间后，我认识到正是这些地方让webpack如此强大和迷人。
+webpack核心理念
+一切都是模块" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no" />
+    <meta name="baidu-site-verification" content="F0CXvmUgA9" />
+
+    
+    
+    <link rel="icon" href="/favicon.png">
+    
+
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+    <div class="app">
+        <header class="header clearfix">
+    <div id="nav" class="nav">
+    <button id="open-panel" class="open-panel"><i class="icon-library"></i></button>
+
+    <nav class="nav-inner">
+
+        
+        
+        <li class="nav-item">
+            <a class="nav-link" href="/">首页</a>
+        </li>
+        
+        
+        
+        <li class="nav-item">
+            <a class="nav-link" href="/categories/front-end">前端</a>
+        </li>
+        
+        
+        
+        <li class="nav-item">
+            <a class="nav-link" href="/back-end">后端</a>
+        </li>
+        
+        
+        
+        <li class="nav-item nav-item-tag">
+            <a id="nav-tag" class="nav-link" href="#">标签</a>
+            <div id="nav-tags" class="nav-tag-wrap">
+                <i class="nav-tag-arrow"></i>
+                
+
+            </div>
+        </li>
+        
+        
+        
+        <li class="nav-item">
+            <a class="nav-link" href="/archives">归档</a>
+        </li>
+        
+        
+        
+        <li class="nav-item">
+            <a class="nav-link" href="/atom.xml">订阅</a>
+        </li>
+        
+        
+        
+        <li class="nav-item">
+            <a class="nav-link" href="/about">关于</a>
+        </li>
+        
+        
+        
+
+    </nav>
+</div>
+
+    <aside id="aside" class="aside">
+    <div id="aside-mask" class="aside-mask"></div>
+    <div id="aside-inner" class="aside-inner">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit"><i class="icon-search-stroke"></i></button><input type="hidden" name="sitesearch" value="http://hualuyao.com"></form>
+
+        
+        
+        
+        
+
+        
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#webpack核心理念"><span class="toc-number">2.</span> <span class="toc-text">webpack核心理念</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#开发环境和生产环境（Development-Vs-Production）"><span class="toc-number">3.</span> <span class="toc-text">开发环境和生产环境（Development Vs Production）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#webpack-CLI-Vs-webpack-dev-server"><span class="toc-number">4.</span> <span class="toc-text">webpack CLI Vs webpack-dev-server</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Webpack-CLI-适用于生产环境构建）"><span class="toc-number">4.1.</span> <span class="toc-text">Webpack CLI (适用于生产环境构建）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#webpack-dev-server（适用于开发环境构建）"><span class="toc-number">4.2.</span> <span class="toc-text">webpack-dev-server（适用于开发环境构建）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#webpack和webpack-dev-server选项"><span class="toc-number">4.3.</span> <span class="toc-text">webpack和webpack-dev-server选项</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#webpack-dev-server参数"><span class="toc-number">4.4.</span> <span class="toc-text">webpack-dev-server参数</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#quot-hot-quot-Vs-quot-inline-quot"><span class="toc-number">4.5.</span> <span class="toc-text">&quot;hot&quot; Vs &quot;inline&quot;</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#entry-String-Vs-Array-Vs-Object"><span class="toc-number">5.</span> <span class="toc-text">entry(String Vs Array Vs Object)</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#entry-—-Array"><span class="toc-number">5.1.</span> <span class="toc-text">entry — Array</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#entry-—-Object"><span class="toc-number">5.2.</span> <span class="toc-text">entry — Object</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#entry-—-结合使用array和object"><span class="toc-number">5.3.</span> <span class="toc-text">entry — 结合使用array和object</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#output-—-path和publicPath"><span class="toc-number">6.</span> <span class="toc-text">output — path和publicPath</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#加载器和链式加载器（Loaders-And-Chaining-Loaders）"><span class="toc-number">7.</span> <span class="toc-text">加载器和链式加载器（Loaders And Chaining Loaders）</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#链式加载（从右至左）"><span class="toc-number">7.1.</span> <span class="toc-text">链式加载（从右至左）</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#加载器可配置"><span class="toc-number">8.</span> <span class="toc-text">加载器可配置</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#babelrc文件"><span class="toc-number">9.</span> <span class="toc-text">.babelrc文件</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#插件（Plugins）"><span class="toc-number">10.</span> <span class="toc-text">插件（Plugins）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#加载器和插件-Loaders-Vs-Plugins"><span class="toc-number">11.</span> <span class="toc-text">加载器和插件(Loaders Vs Plugins)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#文件后缀处理-Resolving-File-Extensions"><span class="toc-number">12.</span> <span class="toc-text">文件后缀处理(Resolving File Extensions)</span></a></li></ol>
+        
+    </div>
+</aside>
+
+</header>
+
+        <div id="content" class="content"><article class="article" itemscope itemprop="blogPost">
+    
+    <header class="article-header">
+        
+        <h1 itemprop="name">
+            【译】Webpack之谜
+        </h1>
+        
+        <div class="article-meta clearfix">
+            <a class="article-date" href="/2016/11/09/hello-world/">
+    
+    <i class="icon-calendar"></i>
+    
+    <time datetime="2016-11-08T16:00:00.000Z" itemprop="datePublished">2016-11-09</time>
+</a>
+
+            
+
+        </div>
+    </header>
+    
+    <section class="article-body markdown-body">
+        
+        <p> <em>本文译自【Webpack-The Confusing Parts】<a href="https://medium.com/@rajaraodv/webpack-the-confusing-parts-58712f8fcad9#.m63u83at2" target="_blank" rel="noopener">原文</a></em></p>
+<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p><code>webpack</code>是当前最受欢迎的模块管理器（<code>module bundler</code>），对于使用<code>React</code>开发的项目来说堪称神器。当然，对于使用其他框架，比如<code>Angular</code>或者<code>Backbone</code>等的开发者来说，<code>webpack</code>也是种很好的工具。</p>
+<p>第一次配置<code>webpack.config.js</code>时，有很多地方使我很困惑。在使用了<code>webpack</code>一段时间后，我认识到正是这些地方让<code>webpack</code>如此强大和迷人。</p>
+<h2 id="webpack核心理念"><a href="#webpack核心理念" class="headerlink" title="webpack核心理念"></a><code>webpack</code>核心理念</h2><ul>
+<li>一切都是模块。—— 在<code>webpack</code>中，不仅<code>js</code>文件可以作为一个模块，其他文件（<code>css</code>，<code>images</code>，<code>html</code>）都可以作为模块。这就是说，你可以在其他文件中加载这些模块，<code>require(&#39;myJSfile.js&#39;)</code>，或者<code>require(&#39;myCSSfile.css&#39;)</code>。这意味着我们将任意文件拆分成便于管理的小文件，然后通过在其他文件中加载这些小文件来达到重复利用的目的。</li>
+<li>按需加载（<code>Load only &quot;what&quot; you need and &quot;when&quot; you need</code>）—— 一般情况下打包工具会将我们所有的模块打包生成一个最终的文件<code>bundle.js</code>。但是在实际应用中，<code>bundle.js</code>通常会很大（10M~15M），需要很长时间才能加载完成。<code>webpack</code>提供了多种<code>code splitting</code>的方法，会生成过个打包后的文件，且支持按需加载。这样我们只有在需要用到某个模块的时候才会异步加载该模块。</li>
+</ul>
+<p>现在我们来看下这些令人困惑的部分。</p>
+<h2 id="开发环境和生产环境（Development-Vs-Production）"><a href="#开发环境和生产环境（Development-Vs-Production）" class="headerlink" title="开发环境和生产环境（Development Vs Production）"></a>开发环境和生产环境（Development Vs Production）</h2><p>首先要明确的一点是，<code>webpack</code>有很多特性，有些只在开发环境使用，还有些只在生产环境使用，当然还有在生产环境和开发环境都可以使用的。如下图所示：<br><img src="/images/20161109/vs.png" alt="图片描述"></p>
+<blockquote>
+<p>所以通常我们会有两个<code>config</code>文件，以针对开发环境和生产环境作不同配置。</p>
+</blockquote>
+<p>在<code>package.json</code>做如下配置：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&quot;scripts&quot;: &#123;</span><br><span class="line">  //npm run build to build production bundles</span><br><span class="line">  &quot;build&quot;: &quot;webpack --config webpack.config.prod.js&quot;,</span><br><span class="line">  //npm run dev to generate development bundles and run dev. server</span><br><span class="line">  &quot;dev&quot;: &quot;webpack-dev-server&quot;</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
+<h2 id="webpack-CLI-Vs-webpack-dev-server"><a href="#webpack-CLI-Vs-webpack-dev-server" class="headerlink" title="webpack CLI Vs webpack-dev-server"></a><code>webpack CLI</code> Vs <code>webpack-dev-server</code></h2><p>需要知道<code>webpack</code>提供了两个接口</p>
+<ol>
+<li><code>webpack</code>命令行工具(<code>webpack CLI tool</code>) —— 默认使用这种方式，无需单独安装，被集成在<code>webpack</code>中。</li>
+<li><code>webpack-dev-server</code> —— <code>node.js</code> 服务器，需要单独安装</li>
+</ol>
+<h3 id="Webpack-CLI-适用于生产环境构建）"><a href="#Webpack-CLI-适用于生产环境构建）" class="headerlink" title="Webpack CLI (适用于生产环境构建）"></a>Webpack CLI (适用于生产环境构建）</h3><p>可以通过命令行添加参数，也可以通过配置文件（默认为<code>webpack.config.js</code>），<code>webpack</code>打包时会读取这些配置。</p>
+<blockquote>
+<p>最初学习<code>webpack</code>时你可能用的就是命令行方式，之后大部分使用命令行的场景为生产环境打包。</p>
+</blockquote>
+<p><strong>使用方法</strong><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">方法 1: </span><br><span class="line">//全局安装</span><br><span class="line">npm install webpack --g</span><br><span class="line">//在命令行使用</span><br><span class="line">$ webpack //&lt;--Generates bundle using webpack.config.js</span><br><span class="line"></span><br><span class="line">方法 2 :</span><br><span class="line">//本地安装并保存在package.json中</span><br><span class="line">npm install webpack --save</span><br><span class="line">//在scripts中添加</span><br><span class="line">&quot;scripts&quot;: &#123;</span><br><span class="line"> &quot;build&quot;: &quot;webpack --config webpack.config.prod.js -p&quot;,</span><br><span class="line"> ...</span><br><span class="line"> &#125;</span><br><span class="line">//按以下方式运行</span><br><span class="line">&quot;npm run build&quot;</span><br></pre></td></tr></table></figure></p>
+<h3 id="webpack-dev-server（适用于开发环境构建）"><a href="#webpack-dev-server（适用于开发环境构建）" class="headerlink" title="webpack-dev-server（适用于开发环境构建）"></a><code>webpack-dev-server</code>（适用于开发环境构建）</h3><p><code>webpack-dev-server</code>是一个基于<code>Express</code>的<code>node</code>服务器，默认使用<code>8080</code>端口。这个方式的优点是它提供了浏览器热加载（<code>Hot Module Replacement</code>）。<br><strong>使用方法</strong><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">方法一：</span><br><span class="line">//全局安装</span><br><span class="line">npm install webpack-dev-server -g</span><br><span class="line">//在命令行使用</span><br><span class="line">$ webpack-dev-server --inline --hot</span><br><span class="line"></span><br><span class="line">方法二：</span><br><span class="line">//添加到package.json中</span><br><span class="line">&quot;script&quot;: &#123;</span><br><span class="line">     &quot;start&quot;: &quot;webpack-dev-server --inline --hot&quot;,</span><br><span class="line">     ...</span><br><span class="line">&#125;</span><br><span class="line">//在命令行使用</span><br><span class="line">$ npm start</span><br><span class="line"></span><br><span class="line">在浏览器中打开</span><br><span class="line">http://localhost:8080/</span><br></pre></td></tr></table></figure></p>
+<h3 id="webpack和webpack-dev-server选项"><a href="#webpack和webpack-dev-server选项" class="headerlink" title="webpack和webpack-dev-server选项"></a><code>webpack</code>和<code>webpack-dev-server</code>选项</h3><p>需要注意的一点是，像<code>inline</code>和<code>hot</code>这些选项，只有<code>webpack-dev-server</code>有；而另一些比如<code>hide-modules</code>是单独为<code>webpack</code>命令行方式提供的选项。</p>
+<h3 id="webpack-dev-server参数"><a href="#webpack-dev-server参数" class="headerlink" title="webpack-dev-server参数"></a><code>webpack-dev-server</code>参数</h3><p>为<code>webpack-dev-server</code>提供参数有两种方式。</p>
+<ol>
+<li>通过<code>webpack.config.js</code>中的<code>devServer</code></li>
+<li>通过<code>CLI</code>选项</li>
+</ol>
+<p><strong>使用方法</strong><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">//通过CLI</span><br><span class="line">$ webpack-dev-server --hot --inline</span><br><span class="line"></span><br><span class="line">//通过webpack.config.js</span><br><span class="line">devServer: &#123;</span><br><span class="line">    inline: true,</span><br><span class="line">    hot: true</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<blockquote>
+<p>我发现通过<code>devServer</code>设置的配置项（<code>hot: true, inline: true</code>）有时不起作用。所以我更喜欢使用<code>CLI</code>的方式，在<code>package.json</code>中添加如下代码：</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">package.json</span><br><span class="line">&#123;</span><br><span class="line">    &quot;script&quot;: &#123;</span><br><span class="line">        &quot;start&quot;: &quot;webpack-dev-server --hot --inline&quot;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>注意<code>不要</code>同时设置<code>devServer</code>中<code>hot: true</code>和<code>CLI</code>中<code>--hot</code></p>
+</blockquote>
+<h3 id="quot-hot-quot-Vs-quot-inline-quot"><a href="#quot-hot-quot-Vs-quot-inline-quot" class="headerlink" title="&quot;hot&quot; Vs &quot;inline&quot;"></a><code>&quot;hot&quot;</code> Vs <code>&quot;inline&quot;</code></h3><p><code>inline</code>模式会触发页面的动态重载（<code>live reloading</code>）；<code>hot</code>模式会触发页面的热加载（<code>hot Module Replacement</code>）,这种模式只重载页面中变化了的部分。如果同时设置了<code>inline</code>和<code>hot</code>，<code>webpack-dev-server</code>会先尝试<code>HMR</code>，如果<code>HMR</code>失败了，则重载整个页面。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">//当代码发生变化时，以下3种方式都会重新打包，但是：</span><br><span class="line"></span><br><span class="line">//1. 不会重载页面</span><br><span class="line">$ webpack-dev-server</span><br><span class="line"></span><br><span class="line">//2. 会重载整个页面</span><br><span class="line">$ webpack-dev-server --inline</span><br><span class="line"></span><br><span class="line">//3. HMR, 若失败则加载整个页面</span><br><span class="line">$ webpack-dev-server --inline --hot</span><br></pre></td></tr></table></figure></p>
+<h2 id="entry-String-Vs-Array-Vs-Object"><a href="#entry-String-Vs-Array-Vs-Object" class="headerlink" title="entry(String Vs Array Vs Object)"></a><code>entry</code>(<code>String</code> Vs <code>Array</code> Vs <code>Object</code>)</h2><p><code>entry</code>指出了打包入口文件，支持<code>字符串</code>,<code>数组</code>和<code>对象</code>三种形式。这三种形式有何区别呢？</p>
+<blockquote>
+<p>如果为单一入口文件，也就是说入口文件只有一个，那这三种方式会得到相同的结果。</p>
+</blockquote>
+<h3 id="entry-—-Array"><a href="#entry-—-Array" class="headerlink" title="entry — Array"></a><code>entry</code> — <code>Array</code></h3><p>若有多个入口文件，且彼此独立，那么可以使用数组方式。比如入口文件为<code>a.js</code>，<code>b.js</code>，使用数组方式会将<code>b.js</code>的内容追加到<code>bundle.js</code>的内容后。<br>一个很常见的场景就是在<code>html</code>文件加入统计代码，比如<code>googleAnalytics.js</code>，就可以用数组的方式告知<code>webpack</code>将其打包到<code>bundle.js</code>末尾，如下：<br><img src="/images/20161109/entry.png" alt="图片描述"></p>
+<h3 id="entry-—-Object"><a href="#entry-—-Object" class="headerlink" title="entry — Object"></a><code>entry</code> — <code>Object</code></h3><p>这种方式主要针对多页面应用（指包含多个<code>html</code>文件）。这种方式可以使<code>webpack</code>根据这个对象一次就打包出多个文件。<br>如下这种配置可以打包出两个<code>js</code>文件：<code>indexEntry.js</code>和<code>profileEntry.js</code>，可以分别在<code>index.html</code>和<code>profile.html</code>中引入。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    entry: &#123;</span><br><span class="line">        &quot;indexEntry&quot;: &quot;./public/src/index.js&quot;,</span><br><span class="line">        &quot;profileEntry&quot;: &quot;./public/src/profile.js&quot;</span><br><span class="line">    &#125;,</span><br><span class="line">    output: &#123;</span><br><span class="line">        path: &quot;/dist&quot;,</span><br><span class="line">        filename: &quot;[name].js&quot;  //indexEntry.js &amp; profileEntry.js</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p><strong> 使用方法 </strong><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">//profile.html</span><br><span class="line">&lt;script src=&quot;dist/profileEntry.js&quot;&gt;&lt;/script&gt;</span><br><span class="line"></span><br><span class="line">//index.html</span><br><span class="line">&lt;script src=&quot;dist/indexEntry.js&quot;&gt;&lt;/script&gt;</span><br></pre></td></tr></table></figure></p>
+<p><strong> 注： </strong> <code>output</code>中<code>name</code>对应的是<code>entry</code>中的属性名。</p>
+<h3 id="entry-—-结合使用array和object"><a href="#entry-—-结合使用array和object" class="headerlink" title="entry — 结合使用array和object"></a><code>entry</code> — 结合使用<code>array</code>和<code>object</code></h3><p>可以在<code>object</code>内部再使用<code>array</code>方式。比如如下配置：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    entry: &#123;</span><br><span class="line">        &quot;vendor&quot;: [&apos;jquery&apos;, &apos;analytics.js&apos;, &apos;optimizely.js&apos;],</span><br><span class="line">        &quot;index&quot;: &quot;./public/src/index.js&quot;,</span><br><span class="line">        &quot;profile&quot;: &quot;./public/src/profile.js&quot;</span><br><span class="line">    &#125;,</span><br><span class="line">    </span><br><span class="line">    output: &#123;</span><br><span class="line">        path: &quot;/dist&quot;,</span><br><span class="line">        filename: &quot;[name].js&quot;  //vendor.js, index.js &amp; profile.js</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h2 id="output-—-path和publicPath"><a href="#output-—-path和publicPath" class="headerlink" title="output — path和publicPath"></a><code>output</code> — <code>path</code>和<code>publicPath</code></h2><p><code>output</code>设定了打包生成文件的路径。它有两个属性<code>path</code>和<code>publicPath</code>。<br><code>path</code>告知<code>webpack</code>将打包生成后的文件存储于什么路径，比如我们希望将文件打包到<code>dist</code>文件夹下，只需设置<code>path</code>为<code>/dist</code>即可；<code>publicPath</code>用于在生产环境打包时更新文件（包括<code>css</code>、<code>html</code>）中的<code>url</code>。<br>如下配置：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line">//开发环境config</span><br><span class="line">entry: __dirname + &quot;/app/main.js&quot;,</span><br><span class="line"></span><br><span class="line">output: &#123;</span><br><span class="line">    path: __dirname + &quot;/public&quot;,</span><br><span class="line">    </span><br><span class="line">    //开发环境中不需要使用publicPath, 除非你的静态资源比如图片等没有存储在本地开发环境。</span><br><span class="line">    //publicPath: &quot;http://mycdn.com&quot;,</span><br><span class="line">    filename: &quot;bundle.js&quot;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">//生产环境config</span><br><span class="line">entry: __dirname + &quot;/app/main.js&quot;,</span><br><span class="line"></span><br><span class="line">output: &#123;</span><br><span class="line">    path: __dirname + &quot;/public&quot;,</span><br><span class="line">    </span><br><span class="line">    //publicPath: 一些插件（url-loader, file-loader, HtmlWebpackPlugin等)</span><br><span class="line">    //在生成图片，样式表等的url路径时会用到该配置</span><br><span class="line">    //比如：</span><br><span class="line">    //.image &#123;</span><br><span class="line">    //    background-image: url(&apos;./test/png&apos;);</span><br><span class="line">    //&#125;</span><br><span class="line">    //按如下配置打包后会变成：</span><br><span class="line">    //.image &#123;</span><br><span class="line">    //    background-image: url(&apos;http://mycdn.com/test.png&apos;);</span><br><span class="line">    //&#125;</span><br><span class="line">    publicPath: &quot;http://mycdn.com/&quot;,</span><br><span class="line">    filename: &quot;bundle.js&quot;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>举个例子，在你的<code>css</code>文件中，用到了<code>./test.png</code>这个<code>url</code>去加载本地的图片。但是在生产环境中，这张图片<code>test.png</code>会存储在<code>cdn</code>服务器上。这样如果还是用<code>./test.png</code>就会访问不到该图片，必须把文件中所有的<code>url</code>手动改成<code>cdn</code>的路径才能在生产环境使用。</p>
+<p><code>webpack</code>为我们提供的<code>publicPath</code>这个属性使我们可以很方便地处理这类问题。只需要将<code>publicPath</code>设置为生产环境的路径，这些识别<code>publicPath</code>的插件，比如<code>url-loader</code>,就会自动为我们处理好<code>url</code>。如下图所示：</p>
+<p><img src="/images/20161109/process.png" alt="图片描述"></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">//开发环境，server和image都在本地</span><br><span class="line">.image &#123;</span><br><span class="line">    background-image: url(&apos;./test.png&apos;);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">//生产环境, server在HeroKu服务器上，而image在cdn上</span><br><span class="line">.image &#123;</span><br><span class="line">    background-image: url(&apos;https://someCDN/test.png&apos;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>（<code>译者注：</code> <code>publicPath</code>还用于指定在使用<code>webpack-dev-server</code>时，如何访问其暂存于内存中的打包后的文件。）</p>
+<h2 id="加载器和链式加载器（Loaders-And-Chaining-Loaders）"><a href="#加载器和链式加载器（Loaders-And-Chaining-Loaders）" class="headerlink" title="加载器和链式加载器（Loaders And Chaining Loaders）"></a>加载器和链式加载器（<code>Loaders And Chaining Loaders</code>）</h2><p>加载器是一些<code>node</code>模块，可以加载（<code>load</code>）或者引入（<code>import</code>）各种类型的文件使其转化成浏览器支持的文件格式，包括<code>js</code>,<code>css</code>等等。<br>比如：可以使用<code>babel-loader</code>将使用<code>ES6</code>写的<code>js</code>文件转换为浏览器支持的<code>ES5</code>格式。如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">module &#123;</span><br><span class="line">    loaders: [</span><br><span class="line">        &#123;</span><br><span class="line">            test: /\.js$/,  //检测js文件，如果是，则对其使用loader处理</span><br><span class="line">            exclude: /node_modules/,  //不对node_modules下文件处理</span><br><span class="line">            loader: &apos;babel&apos;   //使用babel (对babel-loader的简写)</span><br><span class="line">        &#125;</span><br><span class="line">    ]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h3 id="链式加载（从右至左）"><a href="#链式加载（从右至左）" class="headerlink" title="链式加载（从右至左）"></a>链式加载（从右至左）</h3><p>对同一种类型的文件可以链式运用多个加载器。链式调用为从右向左，通过<code>!</code>分割加载器。<br>举例：我们有一个<code>css</code>文件<code>myCSSFile.css</code>，我们想将这个文件中的内容转换成<code>&lt;style&gt;CSS content&lt;/style&gt;</code>的形式插入到我们的<code>html</code>页面中。可以使用两个加载器<code>css-loader</code>和<code>style-loader</code>来达成以上目的：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">modules: &#123;</span><br><span class="line">    loaders: [</span><br><span class="line">        &#123;</span><br><span class="line">            test: /\.css$/,</span><br><span class="line">            loader: &apos;style!css&apos;  //style-loader!css-loader的简写</span><br><span class="line">        &#125;</span><br><span class="line">    ]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>如下展示了其原理：<br><img src="https://raw.githubusercontent.com/bupthly/blog/ff01ba3a7620f1dd3468f7c0807329f024822b2e/7.png" alt="图片"><br>1、<code>webpack</code>查找模块中依赖的<code>css</code>文件。也就是说，<code>webpack</code>会检查<code>js</code>文件中是否引用了<code>myCSSFile.css</code>。如果找到了依赖，<code>webpack</code>会先用<code>css-loader</code>对其进行处理。<br>2、<code>css-loader</code>会加载所有的<code>css</code>和这个<code>css</code>的依赖（比如<code>@import otherCSS</code>），并将<code>css</code>的内容处理为<code>JSON</code>数据格式。然后将结果传给<code>style-loader</code>进行处理。<br>3、<code>style-loader</code>会对接收到的<code>json</code>数据进行处理，并将其处理为<code>style</code>标签——<code>&lt;style&gt;CSS contents&lt;/style&gt;</code>，然后插入到<code>html</code>页面中。</p>
+<h2 id="加载器可配置"><a href="#加载器可配置" class="headerlink" title="加载器可配置"></a>加载器可配置</h2><p>可以向<code>loaders</code>传递各种参数进行配置。<br>在以下这个例子中，我们对<code>url-loader</code>进行了配置：小于1024字节的图片将会被转为为<code>base64</code>格式，而大于1024字节的图片还是使用图片<code>url</code>。有两种方式进行配置：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">//方式1 使用&apos;?&apos;</span><br><span class="line">&#123;</span><br><span class="line">    test: /\.png$/,</span><br><span class="line">    loader: &quot;url-loader?limit=1024&quot;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">//方式2 使用&apos;query&apos;属性</span><br><span class="line">&#123;</span><br><span class="line">    test: /\.png$/,</span><br><span class="line">    loader: &quot;url-loader&quot;,</span><br><span class="line">    query: &#123;limit: 1024&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h2 id="babelrc文件"><a href="#babelrc文件" class="headerlink" title=".babelrc文件"></a><code>.babelrc</code>文件</h2><p>使用<code>babel-loader</code>的话，需要配置<code>presets</code>才能正确转化，包括将<code>es6</code>转换为<code>es5</code>，将<code>JSX</code>转为<code>js</code>。可以通过如下方式设置参数<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">module: &#123;</span><br><span class="line">    loaders: [</span><br><span class="line">        &#123;</span><br><span class="line">            test: /\.jsx?$/,</span><br><span class="line">            exclude: /(node_modules|bower_components)/,</span><br><span class="line">            loader: &apos;babel&apos;,</span><br><span class="line">            query: &#123;</span><br><span class="line">                presets: [&apos;react&apos;, &apos;es2015&apos;]</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    ]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>但是在很多项目中<code>babel</code>的配置可能会比较大，所以可以单独在<code>babel</code>的配置文件<code>.babelrc</code>中配置。如果有<code>.babelrc</code>，<code>babel-loader</code>会自动加载该文件。<br>如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">//webpack.config.js</span><br><span class="line">module: &#123;</span><br><span class="line">    loaders: [</span><br><span class="line">        &#123;</span><br><span class="line">            test: /\.jsx?$/,</span><br><span class="line">            exclude: /(node_modules|bower_components)/,</span><br><span class="line">            loader: &apos;babel&apos;</span><br><span class="line">        &#125;</span><br><span class="line">    ]</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">//.babelrc</span><br><span class="line">&#123;</span><br><span class="line">    &quot;presets&quot;: [&quot;react&quot;, &quot;es2015&quot;]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h2 id="插件（Plugins）"><a href="#插件（Plugins）" class="headerlink" title="插件（Plugins）"></a>插件（<code>Plugins</code>）</h2><p>插件是一些<code>node</code>模块，可以对生成的打包文件进行处理。<br>比如，<code>uglifyJSPlugin</code>插件可以对打包后得到的<code>bundle.js</code>进行压缩处理，减小文件体积。<br><code>extract-text-webpack-plugin</code>运用了<code>css-loader</code>和<code>style-loader</code>将所有的<code>css</code>统一处理并根据结果生成一个单独的<code>css</code>文件（<code>style.css</code>），将文件链接插入到<code>html</code>文件中。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">//webpack.config.js</span><br><span class="line">//获取所有的css文件，并将其内容整合，生成一个单独的css文件&apos;style.css&apos;</span><br><span class="line">var ETP = require(&apos;extract-text-webpack-plugin&apos;);</span><br><span class="line"></span><br><span class="line">module: &#123;</span><br><span class="line">    loaders: [</span><br><span class="line">        &#123;</span><br><span class="line">            test: /\.css$/,</span><br><span class="line">            loader: ETP.extract(&apos;style-loader&apos;, &apos;css-loader&apos;)</span><br><span class="line">        &#125;</span><br><span class="line">    ]</span><br><span class="line">&#125;,</span><br><span class="line"></span><br><span class="line">plugins: [</span><br><span class="line">    new ExtractTextPlugin(&quot;style.css&quot;)</span><br><span class="line">]</span><br></pre></td></tr></table></figure></p>
+<p><strong> 注： </strong><br>如果你只是想使用内联<code>css</code>样式，在<code>html</code>页面中加入<code>style</code>标签，可以只用<code>css</code>和<code>style</code>加载器。如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">module: &#123;</span><br><span class="line">    loaders: [</span><br><span class="line">        &#123;</span><br><span class="line">            test: /\.css$/,</span><br><span class="line">            loader: &apos;style!css&apos;</span><br><span class="line">        &#125;</span><br><span class="line">    ]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h2 id="加载器和插件-Loaders-Vs-Plugins"><a href="#加载器和插件-Loaders-Vs-Plugins" class="headerlink" title="加载器和插件(Loaders Vs Plugins)"></a>加载器和插件(<code>Loaders Vs Plugins</code>)</h2><p>可以看到，加载器作用于单独的文件，在<code>bundle</code>生成之前完成；<br>插件作用于<code>bundle</code>或<code>chunk</code>，通常是在<code>bundle</code>生成过程的最后进行。一些插件比如<code>commonsChunksPlugins</code>甚至会影响<code>bundle</code>如何生成。（<code>译者注</code>:该插件用于提取出各个模块中引用的相同模块，下篇文章<code>code splitting</code>中会详细说明）</p>
+<h2 id="文件后缀处理-Resolving-File-Extensions"><a href="#文件后缀处理-Resolving-File-Extensions" class="headerlink" title="文件后缀处理(Resolving File Extensions)"></a>文件后缀处理(<code>Resolving File Extensions</code>)</h2><p>很多<code>webpack</code>配置文件中都包含一个<code>resolve extensions</code>的属性，其中包含一个空字符串。这个空字符串就是用于正确加载不含后缀的文件的。比如：<code>require(&#39;./myJSFile&#39;)</code> 或 <code>import myJSFile from  &#39;./myJSFile&#39;</code>。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    resolve: &#123;</span><br><span class="line">        extensions: [&apos;&apos;, &apos;.js&apos;, &apos;.jsx&apos;]</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p><strong> 注： </strong> 翻译水平有限，如有问题还希望大家能不吝赐教，希望和大家共同进步。</p>
+<p>(本文完）</p>
+
+        
+    </section>
+</article>
+
+
+
+<div class="comments">
+    <div id="disqus_thread">
+        <p class="comment-tips">国内查看评论需要代理~</p>
+    </div>
+    <script>
+    window.disqus_config = function () {
+        this.language = 'zh';
+        this.page.url = 'http://hualuyao.com/2016/11/09/hello-world/';
+        this.page.title = '【译】Webpack之谜';
+        this.page.identifier = '2016/11/09/hello-world/';
+    };
+    (function() { // DON'T EDIT BELOW THIS LINE
+        var d = document, s = d.createElement('script');
+        s.src = 'https://name.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+
+</div>
+        <footer class="footer">
+    Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>, Theme by <a href="https://github.com/sanonz/hexo-theme-concise" target="_blank">Concise</a>
+</footer>
+
+<script type="text/javascript" src="//s13.cnzz.com/z_stat.php?id=1234567890&amp;web_id=1234567890"></script>
+
+
+    </div>
+
+    <script type="text/javascript" src="https://cdn.bootcss.com/jquery/3.2.1/jquery.slim.min.js"></script>
+    <script type="text/javascript">
+        $(function() {
+            var nodes = {
+                nav: $('#nav'),
+                aside: $('#aside'),
+                navTags: $('#nav-tags')
+            };
+
+            $('#open-panel, #aside-mask').on('click', function() {
+                nodes.aside.toggleClass('panel-show');
+            });
+            $('#nav-tag').on('click', function(event) {
+                event.preventDefault();console.log(nodes.navTags.attr('class'))
+                nodes.navTags.toggleClass('tag-show');console.log(nodes.navTags.attr('class'))
+            })/*.hover(function() {
+                nodes.navTags.addClass('tag-show');
+            }, function() {
+                nodes.navTags.removeClass('tag-show');
+            });*/
+        });
+    </script>
+
+</body>
+</html>
