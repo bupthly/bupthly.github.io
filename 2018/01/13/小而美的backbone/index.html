@@ -79,17 +79,17 @@
 
 
 
-<meta name="description" content="在这个react和vue如日中天，jquery逐渐被大家抛弃的年代，我还是想要来说一说backbone。 16年6月初，在没有任何前端框架使用经验、js水平也较一般的情况下，被告知需要在几个工作日内搭建完成一个后台管理系统，没有页面设计稿、没有组件库，一切都是从零开始。当时面临两个选择，backbone和react。虽然我很希望能够拿react来练手，但是考虑到学习成本和项目时间问题，leader">
+<meta name="description" content="在这个react和vue如日中天、jquery逐渐被大家抛弃的年代，我还是想要来说一说backbone。  16年6月初，在没有任何前端框架使用经验、js水平也较一般的情况下，被告知需要在几个工作日内搭建完成一个后台管理系统，没有页面设计稿、没有组件库，一切都是从零开始。当时面临两个选择，backbone和react。虽然我很希望能够拿react来练手，但是考虑到学习成本和项目时间问题，leade">
 <meta property="og:type" content="article">
 <meta property="og:title" content="小而美的backbone">
 <meta property="og:url" content="http://hualuyao.com/2018/01/13/小而美的backbone/index.html">
 <meta property="og:site_name" content="luyao&#39;s blog">
-<meta property="og:description" content="在这个react和vue如日中天，jquery逐渐被大家抛弃的年代，我还是想要来说一说backbone。 16年6月初，在没有任何前端框架使用经验、js水平也较一般的情况下，被告知需要在几个工作日内搭建完成一个后台管理系统，没有页面设计稿、没有组件库，一切都是从零开始。当时面临两个选择，backbone和react。虽然我很希望能够拿react来练手，但是考虑到学习成本和项目时间问题，leader">
+<meta property="og:description" content="在这个react和vue如日中天、jquery逐渐被大家抛弃的年代，我还是想要来说一说backbone。  16年6月初，在没有任何前端框架使用经验、js水平也较一般的情况下，被告知需要在几个工作日内搭建完成一个后台管理系统，没有页面设计稿、没有组件库，一切都是从零开始。当时面临两个选择，backbone和react。虽然我很希望能够拿react来练手，但是考虑到学习成本和项目时间问题，leade">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2018-01-13T07:47:59.000Z">
+<meta property="og:updated_time" content="2018-01-13T07:55:13.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="小而美的backbone">
-<meta name="twitter:description" content="在这个react和vue如日中天，jquery逐渐被大家抛弃的年代，我还是想要来说一说backbone。 16年6月初，在没有任何前端框架使用经验、js水平也较一般的情况下，被告知需要在几个工作日内搭建完成一个后台管理系统，没有页面设计稿、没有组件库，一切都是从零开始。当时面临两个选择，backbone和react。虽然我很希望能够拿react来练手，但是考虑到学习成本和项目时间问题，leader">
+<meta name="twitter:description" content="在这个react和vue如日中天、jquery逐渐被大家抛弃的年代，我还是想要来说一说backbone。  16年6月初，在没有任何前端框架使用经验、js水平也较一般的情况下，被告知需要在几个工作日内搭建完成一个后台管理系统，没有页面设计稿、没有组件库，一切都是从零开始。当时面临两个选择，backbone和react。虽然我很希望能够拿react来练手，但是考虑到学习成本和项目时间问题，leade">
 
 
 
@@ -309,10 +309,13 @@
       
 
       
-        <p>在这个react和vue如日中天，jquery逐渐被大家抛弃的年代，我还是想要来说一说backbone。</p>
+        <p>在这个react和vue如日中天、jquery逐渐被大家抛弃的年代，我还是想要来说一说backbone。</p>
+<blockquote>
 <p>16年6月初，在没有任何前端框架使用经验、js水平也较一般的情况下，被告知需要在几个工作日内搭建完成一个后台管理系统，没有页面设计稿、没有组件库，一切都是从零开始。当时面临两个选择，backbone和react。虽然我很希望能够拿react来练手，但是考虑到学习成本和项目时间问题，leader还是建议我使用backbone来完成，就这样，一直用到差不多现在。虽然到项目后期业务场景越来越复杂，backbone的这套技术栈体现出越来越多的问题，但是对于小型项目来说，我还是认为backbone是个不错的选择，而且学习成本低，上手极快~</p>
-<p>backbone是个非常轻量的mvc库，</p>
-
+</blockquote>
+<p>backbone是个非常轻量的mvc库，本文将基于backbone的源码谈一谈其实现的核心部分，以及其中一些巧妙的思想和代码实现技巧。</p>
+<a id="more"></a>
+<h1 id="事件机制（Events）"><a href="#事件机制（Events）" class="headerlink" title="事件机制（Events）"></a>事件机制（Events）</h1><h1 id="模型（Model）"><a href="#模型（Model）" class="headerlink" title="模型（Model）"></a>模型（Model）</h1><h1 id="视图（View）"><a href="#视图（View）" class="headerlink" title="视图（View）"></a>视图（View）</h1>
       
     </div>
     
@@ -396,8 +399,17 @@
       
 
       
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
 
-      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
+      <section class="site-overview-wrap sidebar-panel">
         <div class="site-overview">
           <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
             
@@ -439,6 +451,22 @@
         </div>
       </section>
 
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#事件机制（Events）"><span class="nav-number">1.</span> <span class="nav-text">事件机制（Events）</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#模型（Model）"><span class="nav-number">2.</span> <span class="nav-text">模型（Model）</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#视图（View）"><span class="nav-number">3.</span> <span class="nav-text">视图（View）</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
       
 
       
