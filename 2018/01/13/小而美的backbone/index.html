@@ -86,7 +86,7 @@
 <meta property="og:site_name" content="luyao&#39;s blog">
 <meta property="og:description" content="在这个react和vue如日中天、jquery逐渐被大家抛弃的年代，我还是想要来说一说backbone。  16年6月初，在没有任何前端框架使用经验、js水平也较一般的情况下，被告知需要在几个工作日内搭建完成一个后台管理系统，没有页面设计稿、没有组件库，一切都是从零开始。当时面临两个选择，backbone和react。虽然我很希望能够拿react来练手，但是考虑到学习成本和项目时间问题，leade">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2018-01-13T07:55:13.000Z">
+<meta property="og:updated_time" content="2018-01-13T11:47:31.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="小而美的backbone">
 <meta name="twitter:description" content="在这个react和vue如日中天、jquery逐渐被大家抛弃的年代，我还是想要来说一说backbone。  16年6月初，在没有任何前端框架使用经验、js水平也较一般的情况下，被告知需要在几个工作日内搭建完成一个后台管理系统，没有页面设计稿、没有组件库，一切都是从零开始。当时面临两个选择，backbone和react。虽然我很希望能够拿react来练手，但是考虑到学习成本和项目时间问题，leade">
@@ -315,7 +315,36 @@
 </blockquote>
 <p>backbone是个非常轻量的mvc库，本文将基于backbone的源码谈一谈其实现的核心部分，以及其中一些巧妙的思想和代码实现技巧。</p>
 <a id="more"></a>
-<h1 id="事件机制（Events）"><a href="#事件机制（Events）" class="headerlink" title="事件机制（Events）"></a>事件机制（Events）</h1><h1 id="模型（Model）"><a href="#模型（Model）" class="headerlink" title="模型（Model）"></a>模型（Model）</h1><h1 id="视图（View）"><a href="#视图（View）" class="headerlink" title="视图（View）"></a>视图（View）</h1>
+<h1 id="事件机制（Events）"><a href="#事件机制（Events）" class="headerlink" title="事件机制（Events）"></a>事件机制（Events）</h1><p>事件部分的核心逻辑其实比较简单，简化一下可以用如下的伪代码来表示：</p>
+<pre><code>var events = {
+    evt1: handlers1,
+    evt2: handlers2,
+    ...
+}
+
+//注册事件
+function on(name, callback) {
+    const handlers = events[name] || [];
+    handles.push(callback);
+}
+
+//触发事件
+function trigger(name) {
+    if (!events[name]) {
+        return;
+    }
+    const handlers = events[name];
+    for (let i = 0, len = handlers.length; i &lt; len; i++) {
+        handlers[i]();
+    }
+}
+
+//解除绑定
+function off(name) {
+    delete events[name];
+}
+</code></pre><p>当然了，以上的写法有很多细节的地方没有加入进来，比如上下文绑定，对参数的多种格式的支持，触发事件时对事件处理器传参的处理等等。</p>
+<h1 id="模型（Model）"><a href="#模型（Model）" class="headerlink" title="模型（Model）"></a>模型（Model）</h1><h1 id="视图（View）"><a href="#视图（View）" class="headerlink" title="视图（View）"></a>视图（View）</h1>
       
     </div>
     
