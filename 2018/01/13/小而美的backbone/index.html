@@ -86,7 +86,7 @@
 <meta property="og:site_name" content="luyao&#39;s blog">
 <meta property="og:description" content="在这个react和vue如日中天、jquery逐渐被大家抛弃的年代，我还是想要来说一说backbone。  16年6月初，在没有任何前端框架使用经验、js水平也较一般的情况下，被告知需要在几个工作日内搭建完成一个后台管理系统，没有页面设计稿、没有组件库，一切都是从零开始。当时面临两个选择，backbone和react。虽然我很希望能够拿react来练手，但是考虑到学习成本和项目时间问题，leade">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2018-01-13T12:39:26.000Z">
+<meta property="og:updated_time" content="2018-01-13T13:23:12.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="小而美的backbone">
 <meta name="twitter:description" content="在这个react和vue如日中天、jquery逐渐被大家抛弃的年代，我还是想要来说一说backbone。  16年6月初，在没有任何前端框架使用经验、js水平也较一般的情况下，被告知需要在几个工作日内搭建完成一个后台管理系统，没有页面设计稿、没有组件库，一切都是从零开始。当时面临两个选择，backbone和react。虽然我很希望能够拿react来练手，但是考虑到学习成本和项目时间问题，leade">
@@ -309,11 +309,11 @@
       
 
       
-        <p>在这个react和vue如日中天、jquery逐渐被大家抛弃的年代，我还是想要来说一说backbone。</p>
+        <p>在这个<em>react</em>和<em>vue</em>如日中天、<em>jquery</em>逐渐被大家抛弃的年代，我还是想要来说一说<em>backbone</em>。</p>
 <blockquote>
 <p>16年6月初，在没有任何前端框架使用经验、js水平也较一般的情况下，被告知需要在几个工作日内搭建完成一个后台管理系统，没有页面设计稿、没有组件库，一切都是从零开始。当时面临两个选择，backbone和react。虽然我很希望能够拿react来练手，但是考虑到学习成本和项目时间问题，leader还是建议我使用backbone来完成，就这样，一直用到差不多现在。虽然到项目后期业务场景越来越复杂，backbone的这套技术栈体现出越来越多的问题，但是对于小型项目来说，我还是认为backbone是个不错的选择，而且学习成本低，上手极快~</p>
 </blockquote>
-<p>backbone是个非常轻量的mvc库，本文将基于backbone的源码谈一谈其实现的核心部分，以及其中一些巧妙的思想和代码实现技巧。</p>
+<p><em>backbone</em>是个非常轻量的<em>mvc</em>库，本文将基于<em>backbone</em>的源码谈一谈其实现的核心部分，以及其中一些巧妙的思想和代码实现技巧。</p>
 <a id="more"></a>
 <h1 id="事件机制（Events）"><a href="#事件机制（Events）" class="headerlink" title="事件机制（Events）"></a>事件机制（Events）</h1><p>事件部分的核心逻辑其实比较简单，简化一下可以用如下的伪代码来表示：</p>
 <pre><code>var events = {
@@ -343,21 +343,21 @@ function trigger(name) {
 function off(name) {
     delete events[name];
 }
-</code></pre><p>当然了，以上写法有很多细节的地方没有加入进来，比如上下文绑定、对参数的多种格式的支持、触发事件时对事件处理器传参的处理等等。</p>
-<p>另外，我们知道，对于MVC来说，M（模型）的变化会反映在V（视图）上，实际上是视图监听了模型的变化，再根据模型去更新自身的状态，这当中最重要的一个功能就是监听（listen）。该功能也是由Events部分实现的，包括：listenTo、stopListening等</p>
-<p>listenTo和on类似，都是监听一个事件，只不过listenTo是监听其他对象的对应事件，而on是监听自身的对应事件。stopListening同理。比如：</p>
+</code></pre><p>当然了，以上写法有很多细节的地方没有加入进来，比如<em>上下文绑定</em>、<em>对多种传参方式的支持</em>、<em>触发事件时对事件处理器传参的处理</em>等等。</p>
+<p>我们知道，对于<em>MVC</em>来说，<em>M（模型）</em>的变化会反映在<em>V（视图）</em>上，实际上是视图监听了模型的变化，再根据模型去更新自身的状态，这当中最重要的一个功能就是监听<em>（listen）</em>。该功能也是由<em>Events</em>部分实现的，包括：<em>listenTo</em>、<em>stopListening</em>等</p>
+<p><em>listenTo</em>和<em>on</em>类似，都是监听一个事件，只不过<em>listenTo</em>是监听其他对象的对应事件，而<em>on</em>是监听自身的对应事件。<em>stopListening</em>同理。比如：</p>
 <pre><code>a.on(&apos;testevent&apos;, function(){
     alert(&apos;1&apos;);
 });
 a.trigger(&apos;testevent&apos;);
-</code></pre><p>如果其他对象希望监听a的testevent事件呢？则可以通过listenTo来实现：</p>
+</code></pre><p>如果其他对象希望监听<em>a</em>的<em>testevent</em>事件呢？则可以通过<em>listenTo</em>来实现：</p>
 <pre><code>b.listenTo(a, &apos;testevent&apos;, function() {
-    alert(&apos;catch a testevent&apos;);
+    alert(&apos;catch a\&apos;s testevent&apos;);
 })
 </code></pre><p>其中第一个参数为要监听的对象，第二个参数为事件名称</p>
-<p>当调用on方法的时候，会为对象自身创建一个_event属性；而调用listenTo方法时，会为监听对象创建_event属性：</p>
+<p>当调用<em>on</em>方法的时候，会为对象自身创建一个<em>_event</em>属性；而调用<em>listenTo</em>方法时，会为监听对象创建<em>_event</em>属性，同时为了记录监听者，被监听对象还会创建一个<em>_listeners</em>属性：</p>
 <pre><code>a.on(&apos;testevent&apos;, handlers1);
-</code></pre><p>a会变成：</p>
+</code></pre><p><em>a</em>会变成：</p>
 <pre><code>{
     _events: {
         testevent: [handlers1]
@@ -367,19 +367,35 @@ a.trigger(&apos;testevent&apos;);
     }
     ...
 }
-</code></pre><p>当有其他对象监听a时，如：</p>
+</code></pre><p>当有其他对象监听<em>a</em>时，如：</p>
 <pre><code>b.listenTo(a, &apos;testevent&apos;, handlers2);
-</code></pre><p>a会变成：</p>
+</code></pre><p><em>a</em>会变成：</p>
 <pre><code>{
     _events: {
         testevent: [handlers1, handlers2]
     },
+    _listeners: b,
     on: function() {
         //...
     }
     ...
 }
-</code></pre><h1 id="模型（Model）"><a href="#模型（Model）" class="headerlink" title="模型（Model）"></a>模型（Model）</h1><h1 id="视图（View）"><a href="#视图（View）" class="headerlink" title="视图（View）"></a>视图（View）</h1>
+</code></pre><p>在事件机制的实现部分，除了核心逻辑之外，在对一些方法的使用上，也很考究。为了绑定函数执行的上下文，我们经常会使用<em>apply</em>，<em>call</em>这些方法，而源码中多次提到<em>apply</em>的执行效率要低一些，因此，有这样的实现：</p>
+<pre><code>// A difficult-to-believe, but optimized internal dispatch function for
+// triggering events. Tries to keep the usual cases speedy (most internal
+// Backbone events have 3 arguments).
+var triggerEvents = function(events, args) {
+    var ev, i = -1, l = events.length, a1 = args[0], a2 = args[1], a3 = args[2];
+    switch (args.length) {
+      case 0: while (++i &lt; l) (ev = events[i]).callback.call(ev.ctx); return;
+      case 1: while (++i &lt; l) (ev = events[i]).callback.call(ev.ctx, a1); return;
+      case 2: while (++i &lt; l) (ev = events[i]).callback.call(ev.ctx, a1, a2); return;
+      case 3: while (++i &lt; l) (ev = events[i]).callback.call(ev.ctx, a1, a2, a3); return;
+      default: while (++i &lt; l) (ev = events[i]).callback.apply(ev.ctx, args); return;
+    }
+};
+</code></pre><p>有关为什么<em>call</em>比<em>apply</em>的效率更高的解释可以参考<a href="https://www.w3ctech.com/topic/2070" target="_blank" rel="noopener">这篇文章</a></p>
+<h1 id="模型（Model）"><a href="#模型（Model）" class="headerlink" title="模型（Model）"></a>模型（Model）</h1><h1 id="视图（View）"><a href="#视图（View）" class="headerlink" title="视图（View）"></a>视图（View）</h1>
       
     </div>
     
@@ -553,18 +569,6 @@ a.trigger(&apos;testevent&apos;);
 
   
 </div>
-
-
-  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
-
-
-
-  <span class="post-meta-divider">|</span>
-
-
-
-  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
-
 
 
 
