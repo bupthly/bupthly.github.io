@@ -86,7 +86,7 @@
 <meta property="og:site_name" content="luyao&#39;s blog">
 <meta property="og:description" content="在这个react和vue如日中天、jquery逐渐被大家抛弃的年代，我还是想要来说一说backbone。  16年6月初，在没有任何前端框架使用经验、js水平也较一般的情况下，被告知需要在几个工作日内搭建完成一个后台管理系统，没有页面设计稿、没有组件库，一切都是从零开始。当时面临两个选择，backbone和react。虽然我很希望能够拿react来练手，但是考虑到学习成本和项目时间问题，leade">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2018-01-13T11:47:31.000Z">
+<meta property="og:updated_time" content="2018-01-13T12:39:26.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="小而美的backbone">
 <meta name="twitter:description" content="在这个react和vue如日中天、jquery逐渐被大家抛弃的年代，我还是想要来说一说backbone。  16年6月初，在没有任何前端框架使用经验、js水平也较一般的情况下，被告知需要在几个工作日内搭建完成一个后台管理系统，没有页面设计稿、没有组件库，一切都是从零开始。当时面临两个选择，backbone和react。虽然我很希望能够拿react来练手，但是考虑到学习成本和项目时间问题，leade">
@@ -343,8 +343,43 @@ function trigger(name) {
 function off(name) {
     delete events[name];
 }
-</code></pre><p>当然了，以上的写法有很多细节的地方没有加入进来，比如上下文绑定，对参数的多种格式的支持，触发事件时对事件处理器传参的处理等等。</p>
-<h1 id="模型（Model）"><a href="#模型（Model）" class="headerlink" title="模型（Model）"></a>模型（Model）</h1><h1 id="视图（View）"><a href="#视图（View）" class="headerlink" title="视图（View）"></a>视图（View）</h1>
+</code></pre><p>当然了，以上写法有很多细节的地方没有加入进来，比如上下文绑定、对参数的多种格式的支持、触发事件时对事件处理器传参的处理等等。</p>
+<p>另外，我们知道，对于MVC来说，M（模型）的变化会反映在V（视图）上，实际上是视图监听了模型的变化，再根据模型去更新自身的状态，这当中最重要的一个功能就是监听（listen）。该功能也是由Events部分实现的，包括：listenTo、stopListening等</p>
+<p>listenTo和on类似，都是监听一个事件，只不过listenTo是监听其他对象的对应事件，而on是监听自身的对应事件。stopListening同理。比如：</p>
+<pre><code>a.on(&apos;testevent&apos;, function(){
+    alert(&apos;1&apos;);
+});
+a.trigger(&apos;testevent&apos;);
+</code></pre><p>如果其他对象希望监听a的testevent事件呢？则可以通过listenTo来实现：</p>
+<pre><code>b.listenTo(a, &apos;testevent&apos;, function() {
+    alert(&apos;catch a testevent&apos;);
+})
+</code></pre><p>其中第一个参数为要监听的对象，第二个参数为事件名称</p>
+<p>当调用on方法的时候，会为对象自身创建一个_event属性；而调用listenTo方法时，会为监听对象创建_event属性：</p>
+<pre><code>a.on(&apos;testevent&apos;, handlers1);
+</code></pre><p>a会变成：</p>
+<pre><code>{
+    _events: {
+        testevent: [handlers1]
+    },
+    on: function() {
+        //...
+    }
+    ...
+}
+</code></pre><p>当有其他对象监听a时，如：</p>
+<pre><code>b.listenTo(a, &apos;testevent&apos;, handlers2);
+</code></pre><p>a会变成：</p>
+<pre><code>{
+    _events: {
+        testevent: [handlers1, handlers2]
+    },
+    on: function() {
+        //...
+    }
+    ...
+}
+</code></pre><h1 id="模型（Model）"><a href="#模型（Model）" class="headerlink" title="模型（Model）"></a>模型（Model）</h1><h1 id="视图（View）"><a href="#视图（View）" class="headerlink" title="视图（View）"></a>视图（View）</h1>
       
     </div>
     
