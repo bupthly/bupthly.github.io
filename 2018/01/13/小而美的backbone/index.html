@@ -86,7 +86,7 @@
 <meta property="og:site_name" content="luyao&#39;s blog">
 <meta property="og:description" content="在这个react和vue如日中天、jquery逐渐被大家抛弃的年代，我还是想要来说一说backbone。  16年6月初，在没有任何前端框架使用经验、js水平也较一般的情况下，被告知需要在几个工作日内搭建完成一个后台管理系统，没有页面设计稿、没有组件库，一切都是从零开始。当时面临两个选择，backbone和react。虽然我很希望能够拿react来练手，但是考虑到学习成本和项目时间问题，leade">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2018-01-14T01:56:51.000Z">
+<meta property="og:updated_time" content="2018-01-14T07:14:25.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="小而美的backbone">
 <meta name="twitter:description" content="在这个react和vue如日中天、jquery逐渐被大家抛弃的年代，我还是想要来说一说backbone。  16年6月初，在没有任何前端框架使用经验、js水平也较一般的情况下，被告知需要在几个工作日内搭建完成一个后台管理系统，没有页面设计稿、没有组件库，一切都是从零开始。当时面临两个选择，backbone和react。虽然我很希望能够拿react来练手，但是考虑到学习成本和项目时间问题，leade">
@@ -410,7 +410,50 @@ var triggerEvents = function(events, args) {
     }
 };
 </code></pre><p>有关为什么<em>call</em>比<em>apply</em>的效率更高的解释可以参考<a href="https://www.w3ctech.com/topic/2070" target="_blank" rel="noopener">这篇文章</a></p>
-<h1 id="模型（Model）"><a href="#模型（Model）" class="headerlink" title="模型（Model）"></a>模型（Model）</h1><h1 id="视图（View）"><a href="#视图（View）" class="headerlink" title="视图（View）"></a>视图（View）</h1>
+<h1 id="模型（Model）"><a href="#模型（Model）" class="headerlink" title="模型（Model）"></a>模型（Model）</h1><p>model用于维护数据，其中最关键的是对数据的更新部分，即<em>set</em></p>
+<pre><code>// Trigger all relevant attribute changes.
+if (!silent) {
+    if (changes.length) this._pending = options;
+    for (var i = 0; i &lt; changes.length; i++) {
+        this.trigger(&apos;change:&apos; + changes[i], this, current[changes[i]], options);
+    }
+}
+
+// You might be wondering why there&apos;s a `while` loop here. Changes can
+// be recursively nested within `&quot;change&quot;` events.
+if (changing) return this;
+if (!silent) {
+    while (this._pending) {
+        options = this._pending;
+        this._pending = false;
+        this.trigger(&apos;change&apos;, this, options);
+    }
+}
+this._pending = false;
+this._changing = false;
+return this;
+</code></pre><p>每次<em>set</em>数据的时候，根据数据变化的部分，使用<em>trigger</em>方法触发响应的事件；在<em>set</em>数据时，如果不希望触发<em>change</em>事件，可以设置<em>silent</em>为<em>true</em>。</p>
+<p>这部分比较容易让人产生疑惑的是<em>while</em>循环部分，这个while循环有什么用呢？举个例子：</p>
+<pre><code>new Model.on(&quot;change&quot;, function() {
+    console.log(&apos;model change&apos;);
+}).set({
+    a: 1
+});
+</code></pre><p>以上代码是最简单的情况，监听<em>change</em>事件，当<em>model</em>变化时，打印出<em>model change</em><br>在源码中，当第一次进入<em>while</em>后，紧接着<em>this._pending</em>被置为<em>false</em>，而事件触发回调函数也不会更改<em>this._pengding</em>的值，因此再次判断时条件不成立，<em>while</em>内的代码段只会执行一次。</p>
+<p>但是实际情况往往不是这么简单，如代码注释中所说，有可能会有嵌套的情况，比如：</p>
+<pre><code>new Model.on(&quot;change&quot;, function() {
+    this.set({
+        b: 1
+    })
+}).set({
+    a: 1
+});
+</code></pre><p>在这种情况下，第一次<em>trigger</em>触发<em>change</em>的回调函数中，又再次对<em>model</em>进行了更新操作，</p>
+<pre><code>this.set({
+    b: 1
+})
+</code></pre><p>每次<em>set</em>时，会更新<em>this._pending</em>为<em>true</em>，这样当<em>set b</em>后，就会再次进入<em>while</em>内，触发<em>change</em>事件。而如果没有使用<em>while</em>循环的话，对<em>b</em>属性更新的操作就无法触发<em>change</em>事件，导致其监听者到无法根据最新的数据更新自身状态。</p>
+<h1 id="视图（View）"><a href="#视图（View）" class="headerlink" title="视图（View）"></a>视图（View）</h1>
       
     </div>
     
@@ -434,8 +477,8 @@ var triggerEvents = function(events, args) {
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2018/01/08/fundamental-react-concepts/" rel="next" title="">
-                <i class="fa fa-chevron-left"></i> 
+              <a href="/2017/05/14/编写react组件最佳实践/" rel="next" title="【译】编写react组件最佳实践">
+                <i class="fa fa-chevron-left"></i> 【译】编写react组件最佳实践
               </a>
             
           </div>
@@ -526,7 +569,7 @@ var triggerEvents = function(events, args) {
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">4</span>
+                  <span class="site-state-item-count">3</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
