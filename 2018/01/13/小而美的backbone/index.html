@@ -86,7 +86,7 @@
 <meta property="og:site_name" content="luyao&#39;s blog">
 <meta property="og:description" content="在这个react和vue如日中天、jquery逐渐被大家抛弃的年代，我还是想要来说一说backbone。  16年6月初，在没有任何前端框架使用经验、js水平也较一般的情况下，被告知需要在几个工作日内搭建完成一个后台管理系统，没有页面设计稿、没有组件库，一切都是从零开始。当时面临两个选择，backbone和react。虽然我很希望能够拿react来练手，但是考虑到学习成本和项目时间问题，leade">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2018-01-14T07:14:25.000Z">
+<meta property="og:updated_time" content="2018-01-15T03:11:48.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="小而美的backbone">
 <meta name="twitter:description" content="在这个react和vue如日中天、jquery逐渐被大家抛弃的年代，我还是想要来说一说backbone。  16年6月初，在没有任何前端框架使用经验、js水平也较一般的情况下，被告知需要在几个工作日内搭建完成一个后台管理系统，没有页面设计稿、没有组件库，一切都是从零开始。当时面临两个选择，backbone和react。虽然我很希望能够拿react来练手，但是考虑到学习成本和项目时间问题，leade">
@@ -331,129 +331,45 @@
 <p><em>backbone</em>是个非常轻量的<em>mvc</em>库，本文将基于<em>backbone</em>的源码谈一谈其实现的核心部分，以及其中一些巧妙的思想和代码实现技巧。</p>
 <a id="more"></a>
 <h1 id="事件机制（Events）"><a href="#事件机制（Events）" class="headerlink" title="事件机制（Events）"></a>事件机制（Events）</h1><p>事件部分的核心逻辑其实比较简单，简化一下可以用如下的伪代码来表示：</p>
-<pre><code>var events = {
-    evt1: handlers1,
-    evt2: handlers2,
-    ...
-}
-
-//注册事件
-function on(name, callback) {
-    const handlers = events[name] || (events[name] = []);
-    handles.push(callback);
-}
-
-//触发事件
-function trigger(name) {
-    if (!events[name]) {
-        return;
-    }
-    const handlers = events[name];
-    for (let i = 0, len = handlers.length; i &lt; len; i++) {
-        handlers[i]();
-    }
-}
-
-//解除绑定
-function off(name) {
-    delete events[name];
-}
-</code></pre><p>当然了，以上写法有很多细节的地方没有加入进来，比如<em>上下文绑定</em>、<em>对多种传参方式的支持</em>、<em>触发事件时对事件处理器传参的处理</em>等等。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> events = &#123;</span><br><span class="line">    evt1: handlers1,</span><br><span class="line">    evt2: handlers2,</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//注册事件</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">on</span>(<span class="params">name, callback</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">const</span> handlers = events[name] || (events[name] = []);</span><br><span class="line">    handles.push(callback);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//触发事件</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">trigger</span>(<span class="params">name</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (!events[name]) &#123;</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">const</span> handlers = events[name];</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">0</span>, len = handlers.length; i &lt; len; i++) &#123;</span><br><span class="line">        handlers[i]();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//解除绑定</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">off</span>(<span class="params">name</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">delete</span> events[name];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>当然了，以上写法有很多细节的地方没有加入进来，比如<em>上下文绑定</em>、<em>对多种传参方式的支持</em>、<em>触发事件时对事件处理器传参的处理</em>等等。</p>
 <p>我们知道，对于<em>MVC</em>来说，<em>M（模型）</em>的变化会反映在<em>V（视图）</em>上，实际上是视图监听了模型的变化，再根据模型去更新自身的状态，这当中最重要的一个功能就是监听<em>（listen）</em>。该功能也是由<em>Events</em>部分实现的，包括：<em>listenTo</em>、<em>stopListening</em>等</p>
 <p><em>listenTo</em>和<em>on</em>类似，都是监听一个事件，只不过<em>listenTo</em>是监听其他对象的对应事件，而<em>on</em>是监听自身的对应事件。<em>stopListening</em>同理。比如：</p>
-<pre><code>a.on(&apos;testevent&apos;, function(){
-    alert(&apos;1&apos;);
-});
-a.trigger(&apos;testevent&apos;);
-</code></pre><p>如果其他对象希望监听<em>a</em>的<em>testevent</em>事件呢？则可以通过<em>listenTo</em>来实现：</p>
-<pre><code>b.listenTo(a, &apos;testevent&apos;, function() {
-    alert(&apos;catch a\&apos;s testevent&apos;);
-})
-</code></pre><p>其中第一个参数为要监听的对象，第二个参数为事件名称</p>
+<figure class="highlight actionscript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">a.on(<span class="string">'testevent'</span>, <span class="function"><span class="keyword">function</span><span class="params">()</span></span>&#123;</span><br><span class="line">    alert(<span class="string">'1'</span>);</span><br><span class="line">&#125;);</span><br><span class="line">a.trigger(<span class="string">'testevent'</span>);</span><br></pre></td></tr></table></figure>
+<p>如果其他对象希望监听<em>a</em>的<em>testevent</em>事件呢？则可以通过<em>listenTo</em>来实现：</p>
+<figure class="highlight actionscript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">b.listenTo(a, <span class="string">'testevent'</span>, <span class="function"><span class="keyword">function</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    alert(<span class="string">'catch a\'s testevent'</span>);</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+<p>其中第一个参数为要监听的对象，第二个参数为事件名称</p>
 <p>当调用<em>on</em>方法的时候，会为对象自身创建一个<em>_event</em>属性；而调用<em>listenTo</em>方法时，会为监听对象创建<em>_event</em>属性，同时为了记录监听者，被监听对象还会创建一个<em>_listeners</em>属性：</p>
-<pre><code>a.on(&apos;testevent&apos;, handlers1);
-</code></pre><p><em>a</em>会变成：</p>
-<pre><code>{
-    _events: {
-        testevent: [handlers1]
-    },
-    on: function() {
-        //...
-    }
-    ...
-}
-</code></pre><p>当有其他对象监听<em>a</em>时，如：</p>
-<pre><code>b.listenTo(a, &apos;testevent&apos;, handlers2);
-</code></pre><p><em>a</em>会变成：</p>
-<pre><code>{
-    _events: {
-        testevent: [handlers1, handlers2]
-    },
-    _listeners: b,
-    on: function() {
-        //...
-    }
-    ...
-}
-</code></pre><p>在事件机制的实现部分，除了核心逻辑之外，在对一些方法的使用上，也很考究。为了绑定函数执行的上下文，我们经常会使用<em>apply</em>，<em>call</em>这些方法，而源码中多次提到<em>apply</em>的执行效率要低一些，因此，有这样的实现：</p>
-<pre><code>// A difficult-to-believe, but optimized internal dispatch function for
-// triggering events. Tries to keep the usual cases speedy (most internal
-// Backbone events have 3 arguments).
-var triggerEvents = function(events, args) {
-    var ev, i = -1, l = events.length, a1 = args[0], a2 = args[1], a3 = args[2];
-    switch (args.length) {
-      case 0: while (++i &lt; l) (ev = events[i]).callback.call(ev.ctx); return;
-      case 1: while (++i &lt; l) (ev = events[i]).callback.call(ev.ctx, a1); return;
-      case 2: while (++i &lt; l) (ev = events[i]).callback.call(ev.ctx, a1, a2); return;
-      case 3: while (++i &lt; l) (ev = events[i]).callback.call(ev.ctx, a1, a2, a3); return;
-      default: while (++i &lt; l) (ev = events[i]).callback.apply(ev.ctx, args); return;
-    }
-};
-</code></pre><p>有关为什么<em>call</em>比<em>apply</em>的效率更高的解释可以参考<a href="https://www.w3ctech.com/topic/2070" target="_blank" rel="noopener">这篇文章</a></p>
+<figure class="highlight coffeescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">a.<span class="literal">on</span>(<span class="string">'testevent'</span>, handlers1);</span><br></pre></td></tr></table></figure>
+<p><em>a</em>会变成：</p>
+<figure class="highlight clojure"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    _events: &#123;</span><br><span class="line">        testevent: [handlers1]</span><br><span class="line">    &#125;,</span><br><span class="line">    on: function() &#123;</span><br><span class="line">        //...</span><br><span class="line">    &#125;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>当有其他对象监听<em>a</em>时，如：</p>
+<figure class="highlight less"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-tag">b</span><span class="selector-class">.listenTo</span>(a, <span class="string">'testevent'</span>, handlers2);</span><br></pre></td></tr></table></figure>
+<p><em>a</em>会变成：</p>
+<figure class="highlight vim"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    _event<span class="variable">s:</span> &#123;</span><br><span class="line">        testeven<span class="variable">t:</span> [handlers1, handlers2]</span><br><span class="line">    &#125;,</span><br><span class="line">    _listener<span class="variable">s:</span> <span class="keyword">b</span>,</span><br><span class="line">    <span class="keyword">on</span>: <span class="function"><span class="keyword">function</span><span class="params">()</span> &#123;</span></span><br><span class="line">        //...</span><br><span class="line">    &#125;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在事件机制的实现部分，除了核心逻辑之外，在对一些方法的使用上，也很考究。为了绑定函数执行的上下文，我们经常会使用<em>apply</em>，<em>call</em>这些方法，而源码中多次提到<em>apply</em>的执行效率要低一些，因此，有这样的实现：</p>
+<figure class="highlight maxima"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">// A difficult-to-believe, but optimized internal dispatch function <span class="keyword">for</span></span><br><span class="line">// triggering events. Tries to keep the usual cases speedy (most internal</span><br><span class="line">// Backbone events have <span class="number">3</span> arguments).</span><br><span class="line"><span class="built_in">var</span> triggerEvents = function(events, <span class="built_in">args</span>) &#123;</span><br><span class="line">    <span class="built_in">var</span> <span class="built_in">ev</span>, i = -<span class="number">1</span>, l = events.<span class="built_in">length</span>, a1 = <span class="built_in">args</span>[<span class="number">0</span>], a2 = <span class="built_in">args</span>[<span class="number">1</span>], a3 = <span class="built_in">args</span>[<span class="number">2</span>];</span><br><span class="line">    switch (<span class="built_in">args</span>.<span class="built_in">length</span>) &#123;</span><br><span class="line">      case <span class="number">0</span>: <span class="keyword">while</span> (++i &lt; l) (<span class="built_in">ev</span> = events[i]).callback.call(<span class="built_in">ev</span>.ctx); <span class="built_in">return</span>;</span><br><span class="line">      case <span class="number">1</span>: <span class="keyword">while</span> (++i &lt; l) (<span class="built_in">ev</span> = events[i]).callback.call(<span class="built_in">ev</span>.ctx, a1); <span class="built_in">return</span>;</span><br><span class="line">      case <span class="number">2</span>: <span class="keyword">while</span> (++i &lt; l) (<span class="built_in">ev</span> = events[i]).callback.call(<span class="built_in">ev</span>.ctx, a1, a2); <span class="built_in">return</span>;</span><br><span class="line">      case <span class="number">3</span>: <span class="keyword">while</span> (++i &lt; l) (<span class="built_in">ev</span> = events[i]).callback.call(<span class="built_in">ev</span>.ctx, a1, a2, a3); <span class="built_in">return</span>;</span><br><span class="line">      default: <span class="keyword">while</span> (++i &lt; l) (<span class="built_in">ev</span> = events[i]).callback.<span class="built_in">apply</span>(<span class="built_in">ev</span>.ctx, <span class="built_in">args</span>); <span class="built_in">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>有关为什么<em>call</em>比<em>apply</em>的效率更高的解释可以参考<a href="https://www.w3ctech.com/topic/2070" target="_blank" rel="noopener">这篇文章</a></p>
 <h1 id="模型（Model）"><a href="#模型（Model）" class="headerlink" title="模型（Model）"></a>模型（Model）</h1><p>model用于维护数据，其中最关键的是对数据的更新部分，即<em>set</em></p>
-<pre><code>// Trigger all relevant attribute changes.
-if (!silent) {
-    if (changes.length) this._pending = options;
-    for (var i = 0; i &lt; changes.length; i++) {
-        this.trigger(&apos;change:&apos; + changes[i], this, current[changes[i]], options);
-    }
-}
-
-// You might be wondering why there&apos;s a `while` loop here. Changes can
-// be recursively nested within `&quot;change&quot;` events.
-if (changing) return this;
-if (!silent) {
-    while (this._pending) {
-        options = this._pending;
-        this._pending = false;
-        this.trigger(&apos;change&apos;, this, options);
-    }
-}
-this._pending = false;
-this._changing = false;
-return this;
-</code></pre><p>每次<em>set</em>数据的时候，根据数据变化的部分，使用<em>trigger</em>方法触发响应的事件；在<em>set</em>数据时，如果不希望触发<em>change</em>事件，可以设置<em>silent</em>为<em>true</em>。</p>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Trigger all relevant attribute changes.</span></span><br><span class="line"><span class="keyword">if</span> (!silent) &#123;</span><br><span class="line">    <span class="keyword">if</span> (changes.length) <span class="keyword">this</span>._pending = options;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">var</span> i = <span class="number">0</span>; i &lt; changes.length; i++) &#123;</span><br><span class="line">        <span class="keyword">this</span>.trigger(<span class="string">'change:'</span> + changes[i], <span class="keyword">this</span>, current[changes[i]], options);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// You might be wondering why there's a `while` loop here. Changes can</span></span><br><span class="line"><span class="comment">// be recursively nested within `"change"` events.</span></span><br><span class="line"><span class="keyword">if</span> (changing) <span class="keyword">return</span> <span class="keyword">this</span>;</span><br><span class="line"><span class="keyword">if</span> (!silent) &#123;</span><br><span class="line">    <span class="keyword">while</span> (<span class="keyword">this</span>._pending) &#123;</span><br><span class="line">        options = <span class="keyword">this</span>._pending;</span><br><span class="line">        <span class="keyword">this</span>._pending = <span class="literal">false</span>;</span><br><span class="line">        <span class="keyword">this</span>.trigger(<span class="string">'change'</span>, <span class="keyword">this</span>, options);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">this</span>._pending = <span class="literal">false</span>;</span><br><span class="line"><span class="keyword">this</span>._changing = <span class="literal">false</span>;</span><br><span class="line"><span class="keyword">return</span> <span class="keyword">this</span>;</span><br></pre></td></tr></table></figure>
+<p>每次<em>set</em>数据的时候，根据数据变化的部分，使用<em>trigger</em>方法触发响应的事件；在<em>set</em>数据时，如果不希望触发<em>change</em>事件，可以设置<em>silent</em>为<em>true</em>。</p>
 <p>这部分比较容易让人产生疑惑的是<em>while</em>循环部分，这个while循环有什么用呢？举个例子：</p>
-<pre><code>new Model.on(&quot;change&quot;, function() {
-    console.log(&apos;model change&apos;);
-}).set({
-    a: 1
-});
-</code></pre><p>以上代码是最简单的情况，监听<em>change</em>事件，当<em>model</em>变化时，打印出<em>model change</em><br>在源码中，当第一次进入<em>while</em>后，紧接着<em>this._pending</em>被置为<em>false</em>，而事件触发回调函数也不会更改<em>this._pengding</em>的值，因此再次判断时条件不成立，<em>while</em>内的代码段只会执行一次。</p>
+<figure class="highlight haxe"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">new</span> <span class="type">Model</span>.on(<span class="string">"change"</span>, <span class="function"><span class="keyword">function</span></span>() &#123;</span><br><span class="line">    console.log(<span class="string">'model change'</span>);</span><br><span class="line">&#125;).<span class="keyword">set</span>(&#123;</span><br><span class="line">    a: <span class="type">1</span></span><br><span class="line"><span class="type"></span>&#125;);</span><br></pre></td></tr></table></figure>
+<p>以上代码是最简单的情况，监听<em>change</em>事件，当<em>model</em>变化时，打印出<em>model change</em><br>在源码中，当第一次进入<em>while</em>后，紧接着<em>this._pending</em>被置为<em>false</em>，而事件触发回调函数也不会更改<em>this._pengding</em>的值，因此再次判断时条件不成立，<em>while</em>内的代码段只会执行一次。</p>
 <p>但是实际情况往往不是这么简单，如代码注释中所说，有可能会有嵌套的情况，比如：</p>
-<pre><code>new Model.on(&quot;change&quot;, function() {
-    this.set({
-        b: 1
-    })
-}).set({
-    a: 1
-});
-</code></pre><p>在这种情况下，第一次<em>trigger</em>触发<em>change</em>的回调函数中，又再次对<em>model</em>进行了更新操作，</p>
-<pre><code>this.set({
-    b: 1
-})
-</code></pre><p>每次<em>set</em>时，会更新<em>this._pending</em>为<em>true</em>，这样当<em>set b</em>后，就会再次进入<em>while</em>内，触发<em>change</em>事件。而如果没有使用<em>while</em>循环的话，对<em>b</em>属性更新的操作就无法触发<em>change</em>事件，导致其监听者到无法根据最新的数据更新自身状态。</p>
-<h1 id="视图（View）"><a href="#视图（View）" class="headerlink" title="视图（View）"></a>视图（View）</h1>
+<figure class="highlight haxe"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">new</span> <span class="type">Model</span>.on(<span class="string">"change"</span>, <span class="function"><span class="keyword">function</span></span>() &#123;</span><br><span class="line">    <span class="built_in">this</span>.<span class="keyword">set</span>(&#123;</span><br><span class="line">        b: <span class="type">1</span></span><br><span class="line"><span class="type">    </span>&#125;)</span><br><span class="line">&#125;).<span class="keyword">set</span>(&#123;</span><br><span class="line">    a: <span class="type">1</span></span><br><span class="line"><span class="type"></span>&#125;);</span><br></pre></td></tr></table></figure>
+<p>在这种情况下，第一次<em>trigger</em>触发<em>change</em>的回调函数中，又再次对<em>model</em>进行了更新操作，</p>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-tag">this</span><span class="selector-class">.set</span>(&#123;</span><br><span class="line">    <span class="attribute">b</span>: <span class="number">1</span></span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+<p>每次<em>set</em>时，会更新<em>this._pending</em>为<em>true</em>，这样当<em>set b</em>后，就会再次进入<em>while</em>内，触发<em>change</em>事件。而如果没有使用<em>while</em>循环的话，对<em>b</em>属性更新的操作就无法触发<em>change</em>事件，导致其监听者到无法根据最新的数据更新自身状态。</p>
+<h1 id="视图（View）"><a href="#视图（View）" class="headerlink" title="视图（View）"></a>视图（View）</h1><p><em>View</em>部分的实现比较简单，其中最主要的是<em>events</em>部分，通常在一个<em>View</em>中，都会绑定一些<em>dom</em>事件，比如：</p>
+<figure class="highlight sml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    <span class="symbol">'click</span> .preview-btn': <span class="symbol">'preview'</span>,</span><br><span class="line">    <span class="symbol">'click</span> .save-btn': <span class="symbol">'save'</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>主要有两点需要说明：</p>
+<ul>
+<li><em>backbone</em>中是采用的事件委托的方式绑定事件，因此，一些不冒泡的事件，比如<em>scroll</em>，是无法通过这样的方式绑定的</li>
+<li>回调函数会保持正确的<em>this</em>指向。<em>backbone</em>内部进行了处理</li>
+</ul>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">delegateEvents: function(events) &#123;</span><br><span class="line">    events || (events = _.result(<span class="keyword">this</span>, <span class="string">'events'</span>));</span><br><span class="line">    <span class="keyword">if</span> (!events) <span class="keyword">return</span> <span class="keyword">this</span>;</span><br><span class="line">    <span class="keyword">this</span>.undelegateEvents();</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">var</span> key <span class="keyword">in</span> events) &#123;</span><br><span class="line">        <span class="keyword">var</span> method = events[key];</span><br><span class="line">        <span class="keyword">if</span> (!_.isFunction(method)) method = <span class="keyword">this</span>[method];</span><br><span class="line">        <span class="keyword">if</span> (!method) <span class="keyword">continue</span>;</span><br><span class="line">        <span class="keyword">var</span> match = key.match(delegateEventSplitter);</span><br><span class="line">        <span class="keyword">this</span>.delegate(match[<span class="number">1</span>], match[<span class="number">2</span>], _.bind(method, <span class="keyword">this</span>));</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">this</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h1 id="结语"><a href="#结语" class="headerlink" title="结语"></a>结语</h1>
       
     </div>
     
@@ -606,7 +522,7 @@ return this;
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#事件机制（Events）"><span class="nav-number">1.</span> <span class="nav-text">事件机制（Events）</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#模型（Model）"><span class="nav-number">2.</span> <span class="nav-text">模型（Model）</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#视图（View）"><span class="nav-number">3.</span> <span class="nav-text">视图（View）</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#事件机制（Events）"><span class="nav-number">1.</span> <span class="nav-text">事件机制（Events）</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#模型（Model）"><span class="nav-number">2.</span> <span class="nav-text">模型（Model）</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#视图（View）"><span class="nav-number">3.</span> <span class="nav-text">视图（View）</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#结语"><span class="nav-number">4.</span> <span class="nav-text">结语</span></a></li></ol></div>
             
 
           </div>
